@@ -1,4 +1,4 @@
-package com.example.projmob.ui.theme.ui.theme
+package com.example.projmob.minigame.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

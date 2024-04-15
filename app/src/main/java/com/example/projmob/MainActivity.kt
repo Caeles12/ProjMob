@@ -6,6 +6,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
+import com.example.projmob.minigame.Fishing
 
 const val TAG = "MainActivity"
 const val myUUID = "9e87e367-72a0-446a-bb37-838de400db03"
@@ -19,9 +20,12 @@ class MainActivity : Activity() {
         setContentView(R.layout.homescreen)
         val clientInitIntent = Intent(this, ClientInitActivity::class.java)
         val serverInitIntent = Intent(this, ServerInitActivity::class.java)
+        val fishingIntent = Intent(this, Fishing::class.java)
 
         val startAsClientButton: Button = findViewById(R.id.startasclientbutton)
         val startAsServerButton: Button = findViewById(R.id.startasserverbutton)
+        val startFishingButton: Button = findViewById(R.id.startfishing)
+
 
         startAsClientButton.setOnClickListener(View.OnClickListener {
             startActivity(clientInitIntent)
@@ -29,6 +33,10 @@ class MainActivity : Activity() {
 
         startAsServerButton.setOnClickListener(View.OnClickListener {
             startActivity(serverInitIntent)
+        })
+
+        startFishingButton.setOnClickListener(View.OnClickListener {
+            startActivity(fishingIntent)
         })
 
     }

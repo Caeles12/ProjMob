@@ -1,4 +1,4 @@
-package com.example.projmob.ui.theme.ui.theme
+package com.example.projmob.minigame.ui.theme
 
 import android.app.Activity
 import android.os.Build
