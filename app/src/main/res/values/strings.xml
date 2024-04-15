@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name" translatable="false">ProjMob</string>
+    <string name="title_activity_message" translatable="false">MessageActivity</string>
+    <string name="title_activity_server_init" translatable="false">ServerInitActivity</string>
+    <string name="title_activity_client_init" translatable="false">ClientInitActivity</string>
+    <string name="client">Client</string>
+    <string name="server">Server</string>
+    <string name="send">Send</string>
+
+</resources>

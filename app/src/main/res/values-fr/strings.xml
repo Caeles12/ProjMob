@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="send">Envoyer</string>
+    <string name="client">Client</string>
+    <string name="server">Serveur</string>
+</resources>
