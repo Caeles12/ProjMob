@@ -72,6 +72,7 @@ class ClientInitActivity : Activity() {
         }
 
         val filter = IntentFilter(BluetoothDevice.ACTION_FOUND)
+        filter.addAction(BluetoothDevice.ACTION_UUID)
         registerReceiver(receiver, filter)
 
         // Discover devices
@@ -99,15 +100,29 @@ class ClientInitActivity : Activity() {
 
                     val deviceName: String? = device.name
                     val deviceAddress: String? = device.address
+                    device.fetchUuidsWithSdp()
                     // Add the device to your list
                     Log.d(TAG, "$deviceName discovered! ($deviceAddress)")
-                    val deviceInfos: DeviceInfo = DeviceInfo(deviceName, deviceAddress, device)
-                    if(deviceInfos.name != null) {
-                        bluetoothDevices.add(deviceInfos)
-                        if(context != null){
-                            val mListView = findViewById<ListView>(R.id.devices)
-                            val arrayAdapter = ArrayAdapter(context, R.layout.simplelistitem, bluetoothDevices.map { "${it.name} - ${it.address}" })
-                            mListView.adapter = arrayAdapter
+
+                }
+                BluetoothDevice.ACTION_UUID -> {
+                    val d: BluetoothDevice? = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
+                    val uuidExtra = intent.getParcelableArrayExtra(BluetoothDevice.EXTRA_UUID)
+
+                    if (d != null && uuidExtra != null) {
+                        val uuids = uuidExtra.toList().map { it.toString() }
+                        if(uuids.contains(myUUID)){
+                            val deviceName: String? = d.name
+                            val deviceAddress: String? = d.address
+                            // Add the device to your list
+                            Log.d(TAG, "${deviceName} is an available device!")
+                            val deviceInfos: DeviceInfo = DeviceInfo(deviceName, deviceAddress, d)
+                            bluetoothDevices.add(deviceInfos)
+                            if(context != null){
+                                val mListView = findViewById<ListView>(R.id.devices)
+                                val arrayAdapter = ArrayAdapter(context, R.layout.simplelistitem, bluetoothDevices.map { "${it.name} - ${it.address}" })
+                                mListView.adapter = arrayAdapter
+                            }
                         }
                     }
                 }
