@@ -2,7 +2,11 @@ package com.example.projmob
 
 
 import android.app.Activity
+import android.bluetooth.BluetoothDevice
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -27,22 +31,14 @@ class MessageActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.messagelayout)
 
-        val mainHandler = Handler(Looper.getMainLooper(), Handler.Callback {
-            if(it.what == MESSAGE_WRITE && it.arg1 > 0){
-                val mmBuffer: ByteArray = it.obj as ByteArray;
-                Log.d(TAG, "Write : ${mmBuffer.decodeToString(endIndex = it.arg1)}")
-            }else if(it.what == MESSAGE_READ && it.arg1 > 0){
-                val mmBuffer: ByteArray = it.obj as ByteArray;
-                Log.d(TAG, "Read : ${mmBuffer.decodeToString(endIndex = it.arg1)}<")
-                messages.add("Reçu:  ${mmBuffer.decodeToString(endIndex = it.arg1)}")
+        val mainHandlerCustom = bluetoothService!!.MyHandler {
+            if(it.what == TYPE_GAME_MESSAGE){
+                Log.d(TAG, "Read : ${it.content}")
+                messages.add("Reçu:  ${it.content}")
                 updateListView(this)
             }
-            true
-        })
-
-        val service = MyBluetoothService(mainHandler)
-        connectThread = service.ConnectedThread(currentBluetoothSocket!!)
-        connectThread!!.start()
+        }
+        bluetoothService!!.subscribe(mainHandlerCustom)
 
 
         val sendMessageButton: Button = findViewById(R.id.sendMessageButton)
@@ -54,7 +50,7 @@ class MessageActivity : Activity() {
             Log.d(TAG, messageText)
             messages.add("Envoyé:  $messageText")
             updateListView(this)
-            connectThread!!.write(messageText.encodeToByteArray())
+            bluetoothService!!.connectThread.write(TYPE_GAME_MESSAGE, messageText.encodeToByteArray())
         })
     }
 }

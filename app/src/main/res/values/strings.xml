@@ -8,5 +8,7 @@
     <string name="send">Send</string>
     <string name="title_activity_fishing">Fishing</string>
     <string name="fishing">Fishing</string>
+    <string name="title_activity_score">Score</string>
+    <string name="messages">Messages</string>
 
 </resources>

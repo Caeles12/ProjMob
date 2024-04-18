@@ -16,8 +16,7 @@
         android:usesPermissionFlags="neverForLocation"
         tools:targetApi="s" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
-
-    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
         android:allowBackup="true"
@@ -29,6 +28,14 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ProjMob"
         tools:targetApi="31">
+        <activity
+            android:name=".minigame.ChooseMinigame"
+            android:exported="false" />
+        <activity
+            android:name=".minigame.Score"
+            android:exported="false"
+            android:label="@string/title_activity_score"
+            android:theme="@style/Theme.ProjMob" />
         <activity
             android:name=".minigame.Fishing"
             android:exported="false"

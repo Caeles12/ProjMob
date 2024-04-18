@@ -13,6 +13,7 @@ import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.example.projmob.minigame.ChooseMinigame
 import java.io.IOException
 import java.util.UUID
 
@@ -67,8 +68,9 @@ class ServerInitActivity : ComponentActivity() {
 
     fun onConnected(socket: BluetoothSocket){
         runOnUiThread {
-            currentBluetoothSocket = socket
-            val messageActivityIntent = Intent(this, MessageActivity::class.java)
+            bluetoothService = MyBluetoothService(socket, isServer = true)
+            bluetoothService!!.connectThread.start()
+            val messageActivityIntent = Intent(this, ChooseMinigame::class.java)
             startActivity(messageActivityIntent)
         }
     }

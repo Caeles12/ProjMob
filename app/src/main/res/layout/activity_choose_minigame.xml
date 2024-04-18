@@ -3,15 +3,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <Button
-        android:id="@+id/startasclientbutton"
+        android:id="@+id/startfishing"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/client">
+        android:text="@string/fishing">
     </Button>
     <Button
-        android:id="@+id/startasserverbutton"
+        android:id="@+id/startmessaging"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/server">
+        android:text="@string/messages">
     </Button>
 </LinearLayout>

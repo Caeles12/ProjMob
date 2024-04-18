@@ -1,8 +1,8 @@
 package com.example.projmob.minigame
 
 import android.app.Activity
-import android.app.Fragment
 import android.content.Context
+import android.content.Intent
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
@@ -13,12 +13,12 @@ import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
 import android.util.Log
-import android.view.MotionEvent
-import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import com.example.projmob.R
 import com.example.projmob.TAG
+import com.example.projmob.TYPE_GAME_FINISH
+import com.example.projmob.bluetoothService
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -47,6 +47,10 @@ class Fishing : Activity(), SensorEventListener {
     private var canFish = true
 
     private val game: GameThread = GameThread(this)
+
+    private var myFinalScore: Int? = null
+    private var opponentFinalScore: Int? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.fishinggame)
@@ -61,18 +65,22 @@ class Fishing : Activity(), SensorEventListener {
 
         game.start()
         game.setRunning(true)
-    }
+        var scoreIntent = Intent(this, Score::class.java)
 
-    /*override fun onTouchEvent(event: MotionEvent): Boolean {
-        return when (event.action) {
-            MotionEvent.ACTION_DOWN -> {
-                Log.d(TAG, "Action was DOWN")
-                game.action()
-                true
+        if(bluetoothService != null){
+            val gameFinishedHandler = bluetoothService!!.MyHandler {
+                if(it.what == TYPE_GAME_FINISH){
+                    opponentFinalScore = it.content.toInt()
+                    if(myFinalScore != null) {
+                        Log.d(TAG, "On reception: Everyone finished! ${myFinalScore} ${opponentFinalScore}")
+                        scoreIntent = scoreIntent.putExtra("myScore", myFinalScore!!).putExtra("opponentScore", opponentFinalScore!!);
+                        startActivity(scoreIntent)
+                    }
+                }
             }
-            else -> super.onTouchEvent(event)
+            bluetoothService!!.subscribe(gameFinishedHandler)
         }
-    }*/
+    }
 
     fun score(time: Double, maxTime: Double, maxScore: Double): Double {
         if(time > maxTime || time < 0) return 0.0
@@ -143,6 +151,17 @@ class Fishing : Activity(), SensorEventListener {
 
             while(running) {
                 startTime = System.nanoTime()
+                if((GAME_DURATION - ((startTime - gameStartTime) / 1000000)) < 0){
+                    running = false;
+                    myFinalScore = score;
+                    bluetoothService!!.connectThread.write(TYPE_GAME_FINISH, myFinalScore.toString().encodeToByteArray())
+                    if(opponentFinalScore != null) {
+                        Log.d(TAG, "On send: Everyone finished! ${myFinalScore} ${opponentFinalScore}")
+                        var scoreIntent = Intent(context, Score::class.java)
+                        scoreIntent = scoreIntent.putExtra("myScore", myFinalScore!!).putExtra("opponentScore", opponentFinalScore!!);
+                        startActivity(scoreIntent)
+                    }
+                }
                 runOnUiThread {
                     fishingTimer!!.text = ((GAME_DURATION - ((startTime - gameStartTime) / 1000000)) / 1000).toInt().toString()
                 }

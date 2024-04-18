@@ -2,8 +2,11 @@ package com.example.projmob
 
 
 import android.bluetooth.BluetoothSocket
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import java.io.IOException
 import java.io.InputStream
@@ -14,12 +17,33 @@ import java.io.OutputStream
 const val MESSAGE_READ: Int = 0
 const val MESSAGE_WRITE: Int = 1
 const val MESSAGE_TOAST: Int = 2
-// ... (Add other message types here as needed.)
 
-class MyBluetoothService(
-    // handler that gets info from Bluetooth service
-    private val handler: Handler
-) {
+const val TYPE_GAME_MESSAGE: Byte = 0x00
+const val TYPE_BASIC_ACTION: Byte = 0x01
+const val TYPE_GAME_START: Byte = 0x02
+const val TYPE_GAME_FINISH: Byte = 0x03
+
+class MyBluetoothService(private val mmSocket: BluetoothSocket, val isServer: Boolean = false) {
+    private var currentHandler: MyHandler = MyHandler()
+    val connectThread: ConnectedThread = ConnectedThread(mmSocket)
+
+    private val handler = Handler(Looper.getMainLooper(), Handler.Callback {
+        if(it.arg1 > 0){
+            val mmBuffer: ByteArray = it.obj as ByteArray;
+            val content: String = mmBuffer.decodeToString(startIndex = 1, endIndex = it.arg1)
+            val msg: MyMessage = MyMessage(mmBuffer[0], content)
+            currentHandler.callback(msg)
+        }
+        true
+    })
+
+    fun subscribe(h: MyHandler) {
+        currentHandler = h
+    }
+
+    inner class MyHandler(var callback: (MyMessage) -> Unit = {}){}
+
+    inner class MyMessage(val what: Byte, val content: String){}
 
     inner class ConnectedThread(private val mmSocket: BluetoothSocket) : Thread() {
 
@@ -49,9 +73,9 @@ class MyBluetoothService(
         }
 
         // Call this from the main activity to send data to the remote device.
-        fun write(bytes: ByteArray) {
+        fun write(what: Byte, bytes: ByteArray) {
             try {
-                mmOutStream.write(bytes)
+                mmOutStream.write(byteArrayOf(what) + bytes)
             } catch (e: IOException) {
                 Log.e(TAG, "Error occurred when sending data", e)
 
