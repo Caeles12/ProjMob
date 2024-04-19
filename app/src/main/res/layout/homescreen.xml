@@ -14,4 +14,10 @@
         android:layout_height="wrap_content"
         android:text="@string/server">
     </Button>
+    <Button
+        android:id="@+id/startfeedgamebutton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Test FeedGame">
+    </Button>
 </LinearLayout>
