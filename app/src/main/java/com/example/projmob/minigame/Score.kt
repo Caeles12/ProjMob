@@ -18,47 +18,62 @@ class Score : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.scorescreen)
         val myScore: Int = intent.getIntExtra("myScore", -1);
-        val opponentScore: Int = intent.getIntExtra("opponentScore", -1);
-
         val finalScoreResultMessage: TextView = findViewById(R.id.scoreScreenResultMessage)
         val firstPlaceText: TextView = findViewById(R.id.scoreScreenFirstPlace)
         val secondPlaceText: TextView = findViewById(R.id.scoreScreenSecondPlace)
         val continueButton: Button = findViewById(R.id.scoreScreenContinueButton)
         var iAmOk: Boolean = false
-        var opponentIsOk: Boolean = false
+        if(bluetoothService != null) {
+            val opponentScore: Int = intent.getIntExtra("opponentScore", -1);
+            var opponentIsOk: Boolean = false
 
-        if(myScore > opponentScore) {
-            finalScoreResultMessage.text = "Victoire!"
-            firstPlaceText.text = "Vous: $myScore"
-            secondPlaceText.text = "Adversaire: $opponentScore"
-        } else if(myScore < opponentScore) {
-            finalScoreResultMessage.text = "Défaite..."
-            secondPlaceText.text = "Vous: $myScore"
-            firstPlaceText.text = "Adversaire: $opponentScore"
-        } else {
-            finalScoreResultMessage.text = "Égalité!"
-            firstPlaceText.text = "Vous: $myScore"
-            secondPlaceText.text = "Adversaire: $opponentScore"
-        }
+            if (myScore > opponentScore) {
+                finalScoreResultMessage.text = "Victoire!"
+                firstPlaceText.text = "Vous: $myScore"
+                secondPlaceText.text = "Adversaire: $opponentScore"
+            } else if (myScore < opponentScore) {
+                finalScoreResultMessage.text = "Défaite..."
+                secondPlaceText.text = "Vous: $myScore"
+                firstPlaceText.text = "Adversaire: $opponentScore"
+            } else {
+                finalScoreResultMessage.text = "Égalité!"
+                firstPlaceText.text = "Vous: $myScore"
+                secondPlaceText.text = "Adversaire: $opponentScore"
+            }
 
-        val gameFinishedHandler = bluetoothService!!.MyHandler {
-            if(it.what == TYPE_BASIC_ACTION){
-                opponentIsOk = true
-                if(iAmOk) {
-                    val messageActivityIntent = Intent(this, ChooseMinigame::class.java)
-                    startActivity(messageActivityIntent)
+            val gameFinishedHandler = bluetoothService!!.MyHandler {
+                if (it.what == TYPE_BASIC_ACTION) {
+                    opponentIsOk = true
+                    if (iAmOk) {
+                        val messageActivityIntent = Intent(this, ChooseMinigame::class.java)
+                        startActivity(messageActivityIntent)
+                        finish()
+                    }
                 }
             }
-        }
-        bluetoothService!!.subscribe(gameFinishedHandler)
+            bluetoothService!!.subscribe(gameFinishedHandler)
 
-        continueButton.setOnClickListener(View.OnClickListener {
-            iAmOk = true
-            bluetoothService!!.connectThread.write(TYPE_BASIC_ACTION, "Continue".encodeToByteArray())
-            if(opponentIsOk) {
+            continueButton.setOnClickListener(View.OnClickListener {
+                iAmOk = true
+                bluetoothService!!.connectThread.write(
+                    TYPE_BASIC_ACTION,
+                    "Continue".encodeToByteArray()
+                )
+                if (opponentIsOk) {
+                    val messageActivityIntent = Intent(this, ChooseMinigame::class.java)
+                    startActivity(messageActivityIntent)
+                    finish()
+                }
+            })
+        }else {
+            finalScoreResultMessage.text = "Terminé!"
+            firstPlaceText.text = "Score final: $myScore"
+
+            continueButton.setOnClickListener(View.OnClickListener {
                 val messageActivityIntent = Intent(this, ChooseMinigame::class.java)
                 startActivity(messageActivityIntent)
-            }
-        })
+                finish()
+            })
+        }
     }
 }

@@ -19,36 +19,62 @@ class ChooseMinigame : Activity() {
 
         val fishingIntent = Intent(this, Fishing::class.java)
         val messagesIntent = Intent(this, MessageActivity::class.java)
+        val dancingIntent = Intent(this, Dance::class.java)
 
         val startFishingButton: Button = findViewById(R.id.startfishing)
         val startMessagesButton: Button = findViewById(R.id.startmessaging)
+        val startDancingButton: Button = findViewById(R.id.startdancing)
 
-
-        if(bluetoothService!!.isServer) {
-
-            startFishingButton.setOnClickListener(View.OnClickListener {
-                bluetoothService!!.connectThread.write(TYPE_GAME_START, "fishing".encodeToByteArray())
-                startActivity(fishingIntent)
-            })
-            startMessagesButton.setOnClickListener(View.OnClickListener {
-                bluetoothService!!.connectThread.write(TYPE_GAME_START, "messages".encodeToByteArray())
-                startActivity(messagesIntent)
-            })
-        } else {
-            startFishingButton.visibility = View.INVISIBLE
-            startMessagesButton.visibility = View.INVISIBLE
-            val receiveStartHandler = bluetoothService!!.MyHandler {
-                Log.d(TAG, "Received ${it.what} (${it.content})")
-                if(it.what == TYPE_GAME_START){
-                    if(it.content == "fishing") {
-                        startActivity(fishingIntent)
-                    }
-                    if(it.content == "messages") {
-                        startActivity(messagesIntent)
+        if(bluetoothService != null) {
+            if (bluetoothService!!.isServer) {
+                startFishingButton.setOnClickListener(View.OnClickListener {
+                    bluetoothService!!.connectThread.write(
+                        TYPE_GAME_START,
+                        "fishing".encodeToByteArray()
+                    )
+                    startActivity(fishingIntent)
+                })
+                startMessagesButton.setOnClickListener(View.OnClickListener {
+                    bluetoothService!!.connectThread.write(
+                        TYPE_GAME_START,
+                        "messages".encodeToByteArray()
+                    )
+                    startActivity(messagesIntent)
+                })
+                startDancingButton.setOnClickListener(View.OnClickListener {
+                    bluetoothService!!.connectThread.write(
+                        TYPE_GAME_START,
+                        "dancing".encodeToByteArray()
+                    )
+                    startActivity(dancingIntent)
+                })
+            } else {
+                startFishingButton.visibility = View.INVISIBLE
+                startMessagesButton.visibility = View.INVISIBLE
+                val receiveStartHandler = bluetoothService!!.MyHandler {
+                    Log.d(TAG, "Received ${it.what} (${it.content})")
+                    if (it.what == TYPE_GAME_START) {
+                        if (it.content == "fishing") {
+                            startActivity(fishingIntent)
+                        }
+                        if (it.content == "messages") {
+                            startActivity(messagesIntent)
+                        }
+                        if (it.content == "dancing") {
+                            startActivity(dancingIntent)
+                        }
                     }
                 }
+                bluetoothService!!.subscribe(receiveStartHandler)
             }
-            bluetoothService!!.subscribe(receiveStartHandler)
+        } else {
+            startMessagesButton.visibility = View.INVISIBLE
+            startFishingButton.setOnClickListener(View.OnClickListener {
+                startActivity(fishingIntent)
+            })
+            startDancingButton.setOnClickListener {
+                startActivity(dancingIntent)
+            }
         }
     }
 }
