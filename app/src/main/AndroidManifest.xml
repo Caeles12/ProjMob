@@ -32,6 +32,9 @@
             android:name=".minigame.Target"
             android:exported="false" />
         <activity
+            android:name=".minigame.FeedGame"
+            android:exported="false" />
+        <activity
             android:name=".minigame.Dance"
             android:exported="false" />
         <activity
