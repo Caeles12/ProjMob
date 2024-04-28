@@ -22,6 +22,23 @@ import com.example.projmob.bluetoothService
 
 class ChooseMinigame : Activity() {
     var minigames: MutableMap<String, GameInfo> = mutableMapOf()
+
+    private val receiveStartHandler = bluetoothService!!.MyHandler {
+        Log.d(TAG, "Received ${it.what} (${it.content})")
+        if (it.what == TYPE_GAME_START) {
+            if(it.content in minigames.keys){
+                startActivity(minigames[it.content]!!.intent)
+            }
+        }
+        if(it.what == TYPE_CONNEXION_END){
+            AlertDialog.Builder(this)
+                .setTitle("Connexion terminée par l'autre joueur")
+                .setPositiveButton("OK", DialogInterface.OnClickListener { _, _ ->
+                    finish()
+                })
+                .show()
+        }
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_choose_minigame)
@@ -34,7 +51,7 @@ class ChooseMinigame : Activity() {
         val dancingIntent = Intent(this, Dance::class.java)
         minigames["dancing"] = GameInfo("Dancing", dancingIntent)
         val targetIntent = Intent(this, Target::class.java)
-        minigames["target"] = GameInfo("Target", targetIntent)
+        minigames["target"] = GameInfo("Ghost Hunt", targetIntent)
 
         if(bluetoothService == null || bluetoothService!!.isServer) {
             minigames.forEach { entry ->
@@ -58,22 +75,6 @@ class ChooseMinigame : Activity() {
         }
 
         if(bluetoothService != null && !bluetoothService!!.isServer) {
-            val receiveStartHandler = bluetoothService!!.MyHandler {
-                Log.d(TAG, "Received ${it.what} (${it.content})")
-                if (it.what == TYPE_GAME_START) {
-                    if(it.content in minigames.keys){
-                        startActivity(minigames[it.content]!!.intent)
-                    }
-                }
-                if(it.what == TYPE_CONNEXION_END){
-                    AlertDialog.Builder(this)
-                        .setTitle("Connexion terminée par l'autre joueur")
-                        .setPositiveButton("OK", DialogInterface.OnClickListener { _, _ ->
-                            finish()
-                        })
-                        .show()
-                }
-            }
             bluetoothService!!.subscribe(receiveStartHandler)
         }
     }
@@ -94,6 +95,11 @@ class ChooseMinigame : Activity() {
                 })
                 .show()
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        bluetoothService!!.subscribe(receiveStartHandler)
     }
 
     override fun onDestroy() {

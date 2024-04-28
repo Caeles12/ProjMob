@@ -33,6 +33,7 @@ class MyBluetoothService(private val mmSocket: BluetoothSocket, val isServer: Bo
             val mmBuffer: ByteArray = it.obj as ByteArray;
             val content: String = mmBuffer.decodeToString(startIndex = 1, endIndex = it.arg1)
             val msg: MyMessage = MyMessage(mmBuffer[0], content)
+            Log.d(TAG, "Received: (${mmBuffer[0]}) $content")
             currentHandler.callback(msg)
         }
         true
