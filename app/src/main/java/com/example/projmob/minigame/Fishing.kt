@@ -72,14 +72,18 @@ class Fishing : Activity(), SensorEventListener {
                 if(it.what == TYPE_GAME_FINISH){
                     opponentFinalScore = it.content.toInt()
                     if(myFinalScore != null) {
-                        Log.d(TAG, "On reception: Everyone finished! ${myFinalScore} ${opponentFinalScore}")
                         scoreIntent = scoreIntent.putExtra("myScore", myFinalScore!!).putExtra("opponentScore", opponentFinalScore!!);
                         startActivity(scoreIntent)
+                        finish()
                     }
                 }
             }
             bluetoothService!!.subscribe(gameFinishedHandler)
         }
+    }
+
+    override fun onBackPressed() {
+        // Do NOTHING
     }
 
     fun score(time: Double, maxTime: Double, maxScore: Double): Double {
@@ -154,13 +158,21 @@ class Fishing : Activity(), SensorEventListener {
                 if((GAME_DURATION - ((startTime - gameStartTime) / 1000000)) < 0){
                     running = false;
                     myFinalScore = score;
-                    bluetoothService!!.connectThread.write(TYPE_GAME_FINISH, myFinalScore.toString().encodeToByteArray())
-                    if(opponentFinalScore != null) {
-                        Log.d(TAG, "On send: Everyone finished! ${myFinalScore} ${opponentFinalScore}")
+                    if(bluetoothService != null){
+                        bluetoothService!!.connectThread.write(TYPE_GAME_FINISH, myFinalScore.toString().encodeToByteArray())
+                        if(opponentFinalScore != null) {
+                            var scoreIntent = Intent(context, Score::class.java)
+                            scoreIntent = scoreIntent.putExtra("myScore", myFinalScore!!).putExtra("opponentScore", opponentFinalScore!!);
+                            startActivity(scoreIntent)
+                            finish()
+                        }
+                    } else {
                         var scoreIntent = Intent(context, Score::class.java)
-                        scoreIntent = scoreIntent.putExtra("myScore", myFinalScore!!).putExtra("opponentScore", opponentFinalScore!!);
+                        scoreIntent = scoreIntent.putExtra("myScore", myFinalScore!!);
                         startActivity(scoreIntent)
+                        finish()
                     }
+
                 }
                 runOnUiThread {
                     fishingTimer!!.text = ((GAME_DURATION - ((startTime - gameStartTime) / 1000000)) / 1000).toInt().toString()

@@ -149,8 +149,9 @@ class ClientInitActivity : Activity() {
         runOnUiThread {
             bluetoothService = MyBluetoothService(socket)
             bluetoothService!!.connectThread.start()
-            val messageActivityIntent = Intent(this, ChooseMinigame::class.java)
-            startActivity(messageActivityIntent)
+            val chooseMinigameActivity = Intent(this, ChooseMinigame::class.java)
+            startActivity(chooseMinigameActivity)
+            finish()
         }
     }
 

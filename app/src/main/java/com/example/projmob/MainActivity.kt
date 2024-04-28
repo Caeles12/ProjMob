@@ -8,6 +8,8 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import com.example.projmob.minigame.FeedGame
+import com.example.projmob.minigame.ChooseMinigame
+import com.example.projmob.minigame.Dance
 import com.example.projmob.minigame.Fishing
 
 const val TAG = "MainActivity"
