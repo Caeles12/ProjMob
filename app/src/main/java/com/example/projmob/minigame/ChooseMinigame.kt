@@ -23,7 +23,7 @@ import com.example.projmob.bluetoothService
 class ChooseMinigame : Activity() {
     var minigames: MutableMap<String, GameInfo> = mutableMapOf()
 
-    private val receiveStartHandler = bluetoothService!!.MyHandler {
+    private val receiveStartHandler = bluetoothService?.MyHandler {
         Log.d(TAG, "Received ${it.what} (${it.content})")
         if (it.what == TYPE_GAME_START) {
             if(it.content in minigames.keys){
@@ -78,7 +78,7 @@ class ChooseMinigame : Activity() {
         }
 
         if(bluetoothService != null && !bluetoothService!!.isServer) {
-            bluetoothService!!.subscribe(receiveStartHandler)
+            bluetoothService!!.subscribe(receiveStartHandler!!)
         }
     }
 
@@ -102,7 +102,9 @@ class ChooseMinigame : Activity() {
 
     override fun onResume() {
         super.onResume()
-        bluetoothService!!.subscribe(receiveStartHandler)
+        if(bluetoothService != null && !bluetoothService!!.isServer) {
+            bluetoothService!!.subscribe(receiveStartHandler!!)
+        }
     }
 
     override fun onDestroy() {
