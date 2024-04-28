@@ -22,6 +22,7 @@ const val TYPE_GAME_MESSAGE: Byte = 0x00
 const val TYPE_BASIC_ACTION: Byte = 0x01
 const val TYPE_GAME_START: Byte = 0x02
 const val TYPE_GAME_FINISH: Byte = 0x03
+const val TYPE_CONNEXION_END: Byte = 0x04
 
 class MyBluetoothService(private val mmSocket: BluetoothSocket, val isServer: Boolean = false) {
     private var currentHandler: MyHandler = MyHandler()
@@ -50,12 +51,13 @@ class MyBluetoothService(private val mmSocket: BluetoothSocket, val isServer: Bo
         private val mmInStream: InputStream = mmSocket.inputStream
         private val mmOutStream: OutputStream = mmSocket.outputStream
         private val mmBuffer: ByteArray = ByteArray(1024) // mmBuffer store for the stream
+        private var running: Boolean = true;
 
         override fun run() {
             var numBytes: Int // bytes returned from read()
 
             // Keep listening to the InputStream until an exception occurs.
-            while (true) {
+            while (running) {
                 // Read from the InputStream.
                 numBytes = try {
                     mmInStream.read(mmBuffer)
@@ -99,6 +101,7 @@ class MyBluetoothService(private val mmSocket: BluetoothSocket, val isServer: Bo
         fun cancel() {
             try {
                 mmSocket.close()
+                running = false
             } catch (e: IOException) {
                 Log.e(TAG, "Could not close the connect socket", e)
             }

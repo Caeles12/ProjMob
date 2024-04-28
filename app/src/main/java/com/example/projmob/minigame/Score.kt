@@ -1,22 +1,26 @@
 package com.example.projmob.minigame
 
 import android.app.Activity
-import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import com.example.projmob.R
-import com.example.projmob.TAG
 import com.example.projmob.TYPE_BASIC_ACTION
-import com.example.projmob.TYPE_GAME_FINISH
+import android.media.MediaPlayer
 import com.example.projmob.bluetoothService
 
 class Score : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.scorescreen)
+
+        val winSound = MediaPlayer.create(this, R.raw.win);
+        winSound.isLooping = false
+
+        val looseSound = MediaPlayer.create(this, R.raw.fail);
+        looseSound.isLooping = false
+
         val myScore: Int = intent.getIntExtra("myScore", -1);
         val finalScoreResultMessage: TextView = findViewById(R.id.scoreScreenResultMessage)
         val firstPlaceText: TextView = findViewById(R.id.scoreScreenFirstPlace)
@@ -31,22 +35,23 @@ class Score : Activity() {
                 finalScoreResultMessage.text = "Victoire!"
                 firstPlaceText.text = "Vous: $myScore"
                 secondPlaceText.text = "Adversaire: $opponentScore"
+                winSound.start()
             } else if (myScore < opponentScore) {
                 finalScoreResultMessage.text = "Défaite..."
                 secondPlaceText.text = "Vous: $myScore"
                 firstPlaceText.text = "Adversaire: $opponentScore"
+                looseSound.start()
             } else {
                 finalScoreResultMessage.text = "Égalité!"
                 firstPlaceText.text = "Vous: $myScore"
                 secondPlaceText.text = "Adversaire: $opponentScore"
+                winSound.start()
             }
 
             val gameFinishedHandler = bluetoothService!!.MyHandler {
                 if (it.what == TYPE_BASIC_ACTION) {
                     opponentIsOk = true
                     if (iAmOk) {
-                        val messageActivityIntent = Intent(this, ChooseMinigame::class.java)
-                        startActivity(messageActivityIntent)
                         finish()
                     }
                 }
@@ -60,8 +65,6 @@ class Score : Activity() {
                     "Continue".encodeToByteArray()
                 )
                 if (opponentIsOk) {
-                    val messageActivityIntent = Intent(this, ChooseMinigame::class.java)
-                    startActivity(messageActivityIntent)
                     finish()
                 }
             })
@@ -70,10 +73,9 @@ class Score : Activity() {
             firstPlaceText.text = "Score final: $myScore"
 
             continueButton.setOnClickListener(View.OnClickListener {
-                val messageActivityIntent = Intent(this, ChooseMinigame::class.java)
-                startActivity(messageActivityIntent)
                 finish()
             })
+            winSound.start()
         }
     }
 }
