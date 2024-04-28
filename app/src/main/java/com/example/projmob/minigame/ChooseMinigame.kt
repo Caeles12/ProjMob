@@ -35,6 +35,8 @@ class ChooseMinigame : Activity() {
         minigames["dancing"] = GameInfo("Dancing", dancingIntent)
         val targetIntent = Intent(this, Target::class.java)
         minigames["target"] = GameInfo("Target", targetIntent)
+        val catIntent = Intent(this, FeedGame::class.java)
+        minigames["cat"] = GameInfo("CatFeeding", catIntent)
 
         if(bluetoothService == null || bluetoothService!!.isServer) {
             minigames.forEach { entry ->

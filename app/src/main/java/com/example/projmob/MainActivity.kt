@@ -1,11 +1,13 @@
 package com.example.projmob
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.bluetooth.BluetoothSocket
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
+import com.example.projmob.minigame.FeedGame
 import com.example.projmob.minigame.ChooseMinigame
 import com.example.projmob.minigame.Dance
 import com.example.projmob.minigame.Fishing
@@ -17,17 +19,17 @@ var bluetoothService: MyBluetoothService? = null
 class MainActivity : Activity() {
 
 
+    @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.homescreen)
         val clientInitIntent = Intent(this, ClientInitActivity::class.java)
         val serverInitIntent = Intent(this, ServerInitActivity::class.java)
-        val mygameintent = Intent(this, ChooseMinigame::class.java)
+        val feedGameIntent = Intent(this, FeedGame::class.java)
 
         val startAsClientButton: Button = findViewById(R.id.startasclientbutton)
         val startAsServerButton: Button = findViewById(R.id.startasserverbutton)
-        val startMyGameButton: Button = findViewById(R.id.startmygamebutton)
-
+        val startGameButton: Button = findViewById(R.id.startfeedgamebutton)
 
         startAsClientButton.setOnClickListener(View.OnClickListener {
             startActivity(clientInitIntent)
@@ -37,8 +39,8 @@ class MainActivity : Activity() {
             startActivity(serverInitIntent)
         })
 
-        startMyGameButton.setOnClickListener(View.OnClickListener {
-            startActivity(mygameintent)
+        startGameButton.setOnClickListener(View.OnClickListener {
+            startActivity(feedGameIntent)
         })
 
     }
