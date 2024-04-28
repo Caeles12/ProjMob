@@ -25,7 +25,7 @@ class MainActivity : Activity() {
         setContentView(R.layout.homescreen)
         val clientInitIntent = Intent(this, ClientInitActivity::class.java)
         val serverInitIntent = Intent(this, ServerInitActivity::class.java)
-        val feedGameIntent = Intent(this, FeedGame::class.java)
+        val feedGameIntent = Intent(this, ChooseMinigame::class.java)
 
         val startAsClientButton: Button = findViewById(R.id.startasclientbutton)
         val startAsServerButton: Button = findViewById(R.id.startasserverbutton)

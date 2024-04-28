@@ -60,6 +60,11 @@ class Score : Activity() {
 
             continueButton.setOnClickListener(View.OnClickListener {
                 iAmOk = true
+
+                continueButton.isEnabled = false
+                continueButton.isClickable = false
+                continueButton.text = "En attente de l'adversaire..."
+
                 bluetoothService!!.connectThread.write(
                     TYPE_BASIC_ACTION,
                     "Continue".encodeToByteArray()
