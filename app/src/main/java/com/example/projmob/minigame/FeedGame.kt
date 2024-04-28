@@ -1,11 +1,15 @@
 package com.example.projmob.minigame
 
 import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import com.example.projmob.R
+import com.example.projmob.TYPE_GAME_FINISH
+import com.example.projmob.bluetoothService
 import kotlin.random.Random
 
 class FeedGame : Activity() {
@@ -15,6 +19,12 @@ class FeedGame : Activity() {
     private lateinit var emojiButton2: Button
 
     private var score: Int = 0
+
+    private var myFinalScore: Int? = null
+    private var opponentFinalScore: Int? = null
+
+    private val nbQuestion: Int = 6
+    private var count: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,6 +56,21 @@ class FeedGame : Activity() {
             emojiButton1.text = wrongEmoji
             emojiButton2.setOnClickListener { onCorrectEmojiClicked() }
             emojiButton1.setOnClickListener { onWrongEmojiClicked() }
+        }
+
+        var scoreIntent = Intent(this, Score::class.java)
+        if(bluetoothService != null){
+            val gameFinishedHandler = bluetoothService!!.MyHandler {
+                if(it.what == TYPE_GAME_FINISH){
+                    opponentFinalScore = it.content.toInt()
+                    if(myFinalScore != null) {
+                        scoreIntent = scoreIntent.putExtra("myScore", myFinalScore!!).putExtra("opponentScore", opponentFinalScore!!);
+                        startActivity(scoreIntent)
+                        finish()
+                    }
+                }
+            }
+            bluetoothService!!.subscribe(gameFinishedHandler)
         }
     }
 
@@ -79,18 +104,46 @@ class FeedGame : Activity() {
 
     private fun onCorrectEmojiClicked() {
         score++
-        Toast.makeText(this, "Correct!", Toast.LENGTH_SHORT).show()
         updateScore()
         showHappyCatEmoji()
-        displayNewChoices()
+        count++
+        if (count < nbQuestion) {
+            displayNewChoices()
+        } else {
+            finishGame()
+        }
     }
 
     private fun onWrongEmojiClicked() {
         score--
-        Toast.makeText(this, "Wrong!", Toast.LENGTH_SHORT).show()
         updateScore()
         showSadCatEmoji()
-        displayNewChoices()
+        count++
+        if (count < nbQuestion) {
+            displayNewChoices()
+        } else {
+            finishGame()
+        }
+    }
+
+    private fun finishGame() {
+        myFinalScore = score;
+        emojiButton1.visibility = View.INVISIBLE
+        emojiButton2.visibility = View.INVISIBLE
+        if(bluetoothService != null){
+            bluetoothService!!.connectThread.write(TYPE_GAME_FINISH, myFinalScore.toString().encodeToByteArray())
+            if(opponentFinalScore != null) {
+                var scoreIntent = Intent(this, Score::class.java)
+                scoreIntent = scoreIntent.putExtra("myScore", myFinalScore!!).putExtra("opponentScore", opponentFinalScore!!);
+                startActivity(scoreIntent)
+                finish()
+            }
+        } else {
+            var scoreIntent = Intent(this, Score::class.java)
+            scoreIntent = scoreIntent.putExtra("myScore", myFinalScore!!);
+            startActivity(scoreIntent)
+            finish()
+        }
     }
 
     private fun displayNewChoices() {
