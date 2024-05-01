@@ -34,6 +34,9 @@
             android:label="@string/title_activity_driving"
             android:theme="@style/Theme.ProjMob" />
         <activity
+            android:name=".minigame.TicTacToe"
+            android:exported="false" />
+        <activity
             android:name=".minigame.Target"
             android:exported="false" />
         <activity

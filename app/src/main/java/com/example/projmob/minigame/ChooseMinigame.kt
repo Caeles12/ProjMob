@@ -52,9 +52,10 @@ class ChooseMinigame : Activity() {
         minigames["dancing"] = GameInfo("Dancing", dancingIntent)
         val targetIntent = Intent(this, Target::class.java)
         minigames["target"] = GameInfo("Ghost Hunt", targetIntent)
-
         val catIntent = Intent(this, FeedGame::class.java)
         minigames["cat"] = GameInfo("CatFeeding", catIntent)
+        val tttIntent = Intent(this, TicTacToe::class.java)
+        minigames["TTT"] = GameInfo("TicTacToe", tttIntent)
 
         val driveIntent = Intent(this, Driving::class.java)
         minigames["drive"] = GameInfo("Driving", driveIntent)

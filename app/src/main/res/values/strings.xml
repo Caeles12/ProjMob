@@ -12,5 +12,6 @@
     <string name="messages">Messages</string>
     <string name="dancing">Dancing</string>
     <string name="title_activity_driving">Driving</string>
+    <string name="title_activity_tic_tac_toe">TicTacToe</string>
 
 </resources>
