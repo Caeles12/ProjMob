@@ -37,7 +37,7 @@ class Fishing : Activity(), SensorEventListener {
     private val MIN_FISH_SPAWN_DELAY: Int = 2000
     private val MAX_FISH_SPAWN_DELAY: Int = 5000
     private val BOP_DELAY = 1000
-    private val GAME_DURATION = 60000
+    private val GAME_DURATION = 30000
 
     private var fishingScoreTextView: TextView? = null
     private var fishingMessage: TextView? = null
