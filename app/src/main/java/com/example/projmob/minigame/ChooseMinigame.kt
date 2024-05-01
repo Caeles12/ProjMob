@@ -57,6 +57,9 @@ class ChooseMinigame : Activity() {
         val tttIntent = Intent(this, TicTacToe::class.java)
         minigames["TTT"] = GameInfo("TicTacToe", tttIntent)
 
+        val driveIntent = Intent(this, Driving::class.java)
+        minigames["drive"] = GameInfo("Driving", driveIntent)
+
         if(bluetoothService == null || bluetoothService!!.isServer) {
             minigames.forEach { entry ->
                 val button: Button = Button(this)
