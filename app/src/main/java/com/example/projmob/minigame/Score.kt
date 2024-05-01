@@ -74,13 +74,37 @@ class Score : Activity() {
                 }
             })
         }else {
-            finalScoreResultMessage.text = "Terminé!"
-            firstPlaceText.text = "Score final: $myScore"
+            if (intent.hasExtra("opponentScore")) {
+                val opponentScore: Int = intent.getIntExtra("opponentScore", -1)
+                if (myScore > opponentScore) {
+                    finalScoreResultMessage.text = "Victoire!"
+                    firstPlaceText.text = "Vous: $myScore"
+                    secondPlaceText.text = "Ordinateur: $opponentScore"
+                    winSound.start()
+                } else if (myScore < opponentScore) {
+                    finalScoreResultMessage.text = "Défaite..."
+                    secondPlaceText.text = "Vous: $myScore"
+                    firstPlaceText.text = "Ordinateur: $opponentScore"
+                    looseSound.start()
+                } else {
+                    finalScoreResultMessage.text = "Égalité!"
+                    firstPlaceText.text = "Vous: $myScore"
+                    secondPlaceText.text = "Ordinateur: $opponentScore"
+                    winSound.start()
+                }
+                continueButton.setOnClickListener(View.OnClickListener {
+                    finish()
+                })
+            } else {
+                finalScoreResultMessage.text = "Terminé!"
+                firstPlaceText.text = "Score final: $myScore"
 
-            continueButton.setOnClickListener(View.OnClickListener {
-                finish()
-            })
-            winSound.start()
+                continueButton.setOnClickListener(View.OnClickListener {
+                    finish()
+                })
+                winSound.start()
+            }
+
         }
     }
 }
