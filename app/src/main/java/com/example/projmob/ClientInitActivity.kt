@@ -15,8 +15,10 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.ListView
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -120,7 +122,10 @@ class ClientInitActivity : Activity() {
                             val deviceInfos: DeviceInfo = DeviceInfo(deviceName, deviceAddress, d)
                             bluetoothDevices.add(deviceInfos)
                             if(context != null){
+                                var loadingProgressBar = findViewById<ProgressBar>(R.id.loadingProgressBar)
                                 val mListView = findViewById<ListView>(R.id.devices)
+                                loadingProgressBar.visibility = View.GONE
+                                mListView.visibility = View.VISIBLE
                                 val arrayAdapter = ArrayAdapter(context, R.layout.simplelistitem, bluetoothDevices.map { "${it.name} - ${it.address}" })
                                 mListView.adapter = arrayAdapter
                             }

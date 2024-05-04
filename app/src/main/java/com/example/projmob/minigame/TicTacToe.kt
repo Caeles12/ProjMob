@@ -78,6 +78,10 @@ class TicTacToe : Activity() {
         }
     }
 
+    override fun onBackPressed() {
+        // Do NOTHING
+    }
+
     private fun sendMove(row: Int, col: Int) {
         val moveMsg = "MOVE:$row,$col"
         bluetoothService?.connectThread?.write(TYPE_GAME_MESSAGE, moveMsg.toByteArray())

@@ -11,19 +11,21 @@
         android:layout_height="wrap_content"
         android:text="@string/start_as"
         android:textAlignment="center"
-        android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"/>
 
     <Button
         android:id="@+id/startasclientbutton"
-        android:layout_width="match_parent"
+        android:layout_width="150dp"
         android:layout_height="wrap_content"
-        android:text="@string/client">
+        android:text="@string/client"
+        android:layout_gravity="center_horizontal">
     </Button>
 
     <Button
         android:id="@+id/startasserverbutton"
-        android:layout_width="match_parent"
+        android:layout_width="150dp"
         android:layout_height="wrap_content"
-        android:text="@string/server">
+        android:text="@string/server"
+        android:layout_gravity="center_horizontal">
     </Button>
 </LinearLayout>
