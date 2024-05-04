@@ -24,10 +24,14 @@ const val TYPE_BASIC_ACTION: Byte = 0x01
 const val TYPE_GAME_START: Byte = 0x02
 const val TYPE_GAME_FINISH: Byte = 0x03
 const val TYPE_CONNEXION_END: Byte = 0x04
+const val TYPE_RESET_POINTS: Byte = 0x05
+const val TYPE_SHOW_SCORES: Byte = 0x06
 
 class MyBluetoothService(private val mmSocket: BluetoothSocket, val isServer: Boolean = false) {
     private var currentHandler: MyHandler = MyHandler()
     val connectThread: ConnectedThread = ConnectedThread(mmSocket)
+    public var myPoints: Int = 0
+    public var opponentPoints: Int = 0
 
     private val handler = Handler(Looper.getMainLooper(), Handler.Callback {
         if(it.arg1 > 0){

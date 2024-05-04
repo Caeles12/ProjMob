@@ -9,19 +9,22 @@ import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.GridLayout
 import android.widget.LinearLayout
-import androidx.activity.OnBackPressedCallback
-import com.example.projmob.DeviceInfo
-import com.example.projmob.MessageActivity
+import android.widget.TextView
 import com.example.projmob.R
 import com.example.projmob.TAG
 import com.example.projmob.TYPE_CONNEXION_END
 import com.example.projmob.TYPE_GAME_START
+import com.example.projmob.TYPE_RESET_POINTS
+import com.example.projmob.TYPE_SHOW_SCORES
 import com.example.projmob.bluetoothService
 
 
 class ChooseMinigame : Activity() {
     var minigames: MutableMap<String, GameInfo> = mutableMapOf()
+    var gameSerie: List<String> = listOf()
+    var gameNumber: Int = 0
 
     private val receiveStartHandler = bluetoothService?.MyHandler {
         Log.d(TAG, "Received ${it.what} (${it.content})")
@@ -38,11 +41,23 @@ class ChooseMinigame : Activity() {
                 })
                 .show()
         }
+        if(it.what == TYPE_RESET_POINTS) {
+            bluetoothService!!.myPoints = 0
+            bluetoothService!!.opponentPoints = 0
+        }
+        if(it.what == TYPE_SHOW_SCORES) {
+            var scoreIntent = Intent(this, Score::class.java)
+            scoreIntent = scoreIntent.putExtra("myScore", bluetoothService!!.myPoints)
+                .putExtra("opponentScore", bluetoothService!!.opponentPoints).putExtra("countGlobal", false);
+            startActivity(scoreIntent)
+        }
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_choose_minigame)
-        val ll: LinearLayout =  findViewById(R.id.chooseminigamelinearlayout);
+        val ll: GridLayout =  findViewById(R.id.chooseminigamelinearlayout);
+        val title: TextView =  findViewById(R.id.chooseMinigameViewTitle);
+        val playGameButton: Button = findViewById(R.id.playGameButton);
 
         val fishingIntent = Intent(this, Fishing::class.java)
         minigames["fishing"] = GameInfo("Fishing", fishingIntent)
@@ -61,6 +76,15 @@ class ChooseMinigame : Activity() {
         minigames["drive"] = GameInfo("Driving", driveIntent)
 
         if(bluetoothService == null || bluetoothService!!.isServer) {
+            if(bluetoothService != null) {
+                title.text = getString(
+                    R.string.a_parentheses_b,
+                    resources.getString(R.string.multiplayer),
+                    resources.getString(R.string.server)
+                );
+            } else {
+                title.text = resources.getString(R.string.solo)
+            }
             minigames.forEach { entry ->
                 val button: Button = Button(this)
                 button.text = entry.value.name
@@ -71,17 +95,44 @@ class ChooseMinigame : Activity() {
                     )
                     startActivity(entry.value.intent)
                 })
+                val param = GridLayout.LayoutParams(
+                    GridLayout.spec(GridLayout.UNDEFINED, 0f), GridLayout.spec(GridLayout.UNDEFINED, 1f)
+                )
+                param.width = 0
                 ll.addView(
                     button,
-                    ViewGroup.LayoutParams(
-                        ViewGroup.LayoutParams.WRAP_CONTENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT
-                    )
+                    param
                 )
             }
+
+            playGameButton.setOnClickListener(View.OnClickListener {
+                if(bluetoothService != null) {
+                    bluetoothService!!.myPoints = 0
+                    bluetoothService!!.opponentPoints = 0
+                    bluetoothService?.connectThread?.write(
+                        TYPE_RESET_POINTS,
+                        "".toByteArray()
+                    )
+                }
+                gameSerie = minigames.keys.shuffled().take(3)
+                gameNumber = 0
+                val game = gameSerie[gameNumber]
+
+                bluetoothService?.connectThread?.write(
+                    TYPE_GAME_START,
+                    game.toByteArray()
+                )
+                startActivity(minigames[game]?.intent)
+            })
         }
 
         if(bluetoothService != null && !bluetoothService!!.isServer) {
+            title.text = getString(
+                R.string.a_parentheses_b,
+                resources.getString(R.string.multiplayer),
+                resources.getString(R.string.client)
+            );
+            findViewById<LinearLayout>(R.id.chooseMinigameMainLinearLayout).visibility = ViewGroup.INVISIBLE;
             bluetoothService!!.subscribe(receiveStartHandler!!)
         }
     }
@@ -108,6 +159,33 @@ class ChooseMinigame : Activity() {
         super.onResume()
         if(bluetoothService != null && !bluetoothService!!.isServer) {
             bluetoothService!!.subscribe(receiveStartHandler!!)
+        }
+        if(gameSerie.isNotEmpty()){
+            gameNumber ++
+            if(gameNumber < gameSerie.size) {
+                val game = gameSerie[gameNumber]
+
+                bluetoothService?.connectThread?.write(
+                    TYPE_GAME_START,
+                    game.toByteArray()
+                )
+                startActivity(minigames[game]?.intent)
+            } else {
+                gameNumber = 0
+                gameSerie = listOf()
+
+                if(bluetoothService != null) {
+                    bluetoothService?.connectThread?.write(
+                        TYPE_SHOW_SCORES,
+                        "".toByteArray()
+                    )
+                    var scoreIntent = Intent(this, Score::class.java)
+                    scoreIntent = scoreIntent.putExtra("myScore", bluetoothService!!.myPoints)
+                        .putExtra("opponentScore", bluetoothService!!.opponentPoints).putExtra("countGlobal", false);
+                    startActivity(scoreIntent)
+                }
+
+            }
         }
     }
 

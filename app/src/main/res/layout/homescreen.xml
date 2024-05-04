@@ -1,24 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <Button
-        android:id="@+id/startasclientbutton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/client">
-    </Button>
-    <Button
-        android:id="@+id/startasserverbutton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/server">
-    </Button>
-    <Button
-        android:id="@+id/startfeedgamebutton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Solo">
 
+    <Button
+        android:id="@+id/start1player"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/_1_joueur">
+    </Button>
+    <Button
+        android:id="@+id/start2players"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/_2_joueurs">
     </Button>
 </LinearLayout>

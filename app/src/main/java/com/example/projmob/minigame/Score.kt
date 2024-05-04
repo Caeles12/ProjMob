@@ -22,6 +22,8 @@ class Score : Activity() {
         looseSound.isLooping = false
 
         val myScore: Int = intent.getIntExtra("myScore", -1);
+        val countGlobalScore: Boolean = intent.getBooleanExtra("countGlobal", true);
+
         val finalScoreResultMessage: TextView = findViewById(R.id.scoreScreenResultMessage)
         val firstPlaceText: TextView = findViewById(R.id.scoreScreenFirstPlace)
         val secondPlaceText: TextView = findViewById(R.id.scoreScreenSecondPlace)
@@ -36,16 +38,22 @@ class Score : Activity() {
                 firstPlaceText.text = "Vous: $myScore"
                 secondPlaceText.text = "Adversaire: $opponentScore"
                 winSound.start()
+                if(countGlobalScore) bluetoothService!!.myPoints += 1
             } else if (myScore < opponentScore) {
                 finalScoreResultMessage.text = "Défaite..."
                 secondPlaceText.text = "Vous: $myScore"
                 firstPlaceText.text = "Adversaire: $opponentScore"
                 looseSound.start()
+                if(countGlobalScore) bluetoothService!!.opponentPoints += 1
             } else {
                 finalScoreResultMessage.text = "Égalité!"
                 firstPlaceText.text = "Vous: $myScore"
                 secondPlaceText.text = "Adversaire: $opponentScore"
                 winSound.start()
+                if(countGlobalScore) {
+                    bluetoothService!!.myPoints += 1
+                    bluetoothService!!.opponentPoints += 1
+                }
             }
 
             val gameFinishedHandler = bluetoothService!!.MyHandler {

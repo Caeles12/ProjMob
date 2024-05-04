@@ -6,12 +6,20 @@
     <string name="client">Client</string>
     <string name="server">Server</string>
     <string name="send">Send</string>
-    <string name="title_activity_fishing">Fishing</string>
+    <string name="title_activity_fishing" translatable="false">Fishing</string>
     <string name="fishing">Fishing</string>
-    <string name="title_activity_score">Score</string>
+    <string name="title_activity_score" translatable="false">Score</string>
     <string name="messages">Messages</string>
     <string name="dancing">Dancing</string>
-    <string name="title_activity_driving">Driving</string>
-    <string name="title_activity_tic_tac_toe">TicTacToe</string>
-
+    <string name="title_activity_driving" translatable="false">Driving</string>
+    <string name="title_activity_tic_tac_toe" translatable="false">TicTacToe</string>
+    <string name="start_as">Start as…</string>
+    <string name="_2_joueurs">2 Players</string>
+    <string name="_1_joueur">1 Player</string>
+    <string name="continuer">Continue</string>
+    <string name="play">Play</string>
+    <string name="training">Training</string>
+    <string name="multiplayer">Multiplayer</string>
+    <string name="solo">Solo</string>
+    <string name="a_parentheses_b">%1$s (%2$s)</string>
 </resources>
