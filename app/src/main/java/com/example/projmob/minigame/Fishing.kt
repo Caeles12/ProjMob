@@ -17,12 +17,14 @@ import android.os.VibratorManager
 import android.util.Log
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.view.doOnLayout
 import com.example.projmob.R
 import com.example.projmob.TAG
 import com.example.projmob.TYPE_GAME_FINISH
 import com.example.projmob.bluetoothService
 import kotlin.math.max
 import kotlin.math.pow
+import kotlin.math.sin
 import kotlin.math.sqrt
 
 
@@ -107,6 +109,7 @@ class Fishing : Activity(), SensorEventListener {
         private var running: Boolean = false
         private var action: Boolean = false
         private var score: Int = 0
+        private var vibrateEndTime: Long = 0
 
         private val targetFPS = 60
 
@@ -127,7 +130,7 @@ class Fishing : Activity(), SensorEventListener {
                 @Suppress("DEPRECATION")
                 getSystemService(VIBRATOR_SERVICE) as Vibrator
             }
-
+            vibrateEndTime = System.nanoTime() + (t * 1000000);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 val timings: LongArray = longArrayOf(t, 350, 25, 25)
                 val amplitudes: IntArray = intArrayOf(255, 0, 0, 0)
@@ -149,6 +152,7 @@ class Fishing : Activity(), SensorEventListener {
             val targetTime = (1000 / targetFPS).toLong()
 
             var fishSpawned: Boolean = false
+            var fishMaxWidth: Int = 0;
             var gameStartTime: Long = System.nanoTime()
             var lastFishTime: Long = System.nanoTime()
             var lastBopTime: Long = System.nanoTime()
@@ -158,9 +162,16 @@ class Fishing : Activity(), SensorEventListener {
 
             runOnUiThread {
                 fishingScoreTextView!!.text = score.toString()
-                fishingMessage!!.text = ""
+                fishingMessage!!.text = "\uD83D\uDC1F"
                 fishingTimer!!.text = GAME_DURATION.toString()
             }
+
+            fishingMessage?.doOnLayout {
+                fishMaxWidth = it.measuredWidth;
+                fishingMessage?.x = fishMaxWidth.toFloat();
+            }
+
+            Log.d(TAG, fishMaxWidth.toString());
 
             while(running) {
                 startTime = System.nanoTime()
@@ -194,6 +205,11 @@ class Fishing : Activity(), SensorEventListener {
                         "%.2f",
                         max(0f, ((GAME_DURATION - ((startTime - gameStartTime) / 1000000).toFloat()) / 1000f))
                     )
+                    if(startTime <= vibrateEndTime || fishSpawned) {
+                        fishingMessage!!.rotation = sin((startTime.toDouble() / 1000000) / 10).toFloat() * 10f
+                    } else {
+                        fishingMessage!!.rotation = 0f;
+                    }
                 }
                 if(action) {
                     if(fishSpawned) {
@@ -202,7 +218,7 @@ class Fishing : Activity(), SensorEventListener {
                         score += fishScore
                         runOnUiThread {
                             fishingScoreTextView!!.text = score.toString()
-                            fishingMessage!!.text = ""
+                            fishingMessage?.x = (fishMaxWidth.toFloat())
                         }
                         fishSpawned = false
                         action = false
@@ -234,12 +250,19 @@ class Fishing : Activity(), SensorEventListener {
                         }
                     }
                 }
+                val timeLeft = (lastFishTime + (nextDelay * 1000000)) - startTime
+                if(timeLeft <= MIN_FISH_SPAWN_DELAY * 1000000 && !fishSpawned && timeLeft >= 0) {
+                    val ratio = (timeLeft.toDouble() / (MIN_FISH_SPAWN_DELAY * 1000000).toDouble()).toFloat()
+                    runOnUiThread {
+                        fishingMessage?.x = (fishMaxWidth.toFloat()) * ratio
+                    }
+                }
 
-                if(fishSpawned && startTime - lastFishTime > BOP_DELAY * 1000000) {
+                /*if(fishSpawned && startTime - lastFishTime > BOP_DELAY * 1000000) {
                     runOnUiThread {
                         fishingMessage!!.text = "Ça mords!"
                     }
-                }
+                }*/
 
                 if(startTime - lastFishTime >= (nextDelay * 1000000)
                     && !fishSpawned
@@ -262,7 +285,9 @@ class Fishing : Activity(), SensorEventListener {
                 waitTime = targetTime - (timeMillis / 1000000)
 
                 try {
-                    sleep(waitTime)
+                    if(waitTime > 0) {
+                        sleep(waitTime)
+                    }
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
