@@ -23,24 +23,18 @@ class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.homescreen)
-        val clientInitIntent = Intent(this, ClientInitActivity::class.java)
-        val serverInitIntent = Intent(this, ServerInitActivity::class.java)
-        val feedGameIntent = Intent(this, ChooseMinigame::class.java)
+        val multiplayerMenu = Intent(this, MultiplayerMenu::class.java)
+        val soloPlayer = Intent(this, ChooseMinigame::class.java)
 
-        val startAsClientButton: Button = findViewById(R.id.startasclientbutton)
-        val startAsServerButton: Button = findViewById(R.id.startasserverbutton)
-        val startGameButton: Button = findViewById(R.id.startfeedgamebutton)
+        val startMultiplayerMenu: Button = findViewById(R.id.start2players)
+        val startGameButton: Button = findViewById(R.id.start1player)
 
-        startAsClientButton.setOnClickListener(View.OnClickListener {
-            startActivity(clientInitIntent)
-        })
-
-        startAsServerButton.setOnClickListener(View.OnClickListener {
-            startActivity(serverInitIntent)
+        startMultiplayerMenu.setOnClickListener(View.OnClickListener {
+            startActivity(multiplayerMenu)
         })
 
         startGameButton.setOnClickListener(View.OnClickListener {
-            startActivity(feedGameIntent)
+            startActivity(soloPlayer)
         })
 
     }

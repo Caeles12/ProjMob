@@ -29,6 +29,9 @@
         android:theme="@style/Theme.ProjMob"
         tools:targetApi="31">
         <activity
+            android:name=".MultiplayerMenu"
+            android:exported="false" />
+        <activity
             android:name=".minigame.Driving"
             android:exported="false"
             android:label="@string/title_activity_driving"
