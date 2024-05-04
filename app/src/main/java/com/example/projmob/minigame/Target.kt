@@ -61,6 +61,10 @@ class Target : Activity() {
         }
     }
 
+    override fun onBackPressed() {
+        // Do NOTHING
+    }
+
     private inner class GameThread(ctx: Context) : Thread() {
 
         private val context: Context = ctx
