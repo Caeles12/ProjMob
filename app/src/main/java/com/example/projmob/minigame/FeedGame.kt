@@ -74,6 +74,10 @@ class FeedGame : Activity() {
         }
     }
 
+    override fun onBackPressed() {
+        // Do NOTHING
+    }
+
     private fun showHappyCatEmoji() {
         catEmojiImageView.text = "😸"
     }
