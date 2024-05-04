@@ -21,6 +21,7 @@ import com.example.projmob.TAG
 import com.example.projmob.TYPE_GAME_FINISH
 import com.example.projmob.bluetoothService
 import kotlin.math.abs
+import kotlin.math.max
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -167,18 +168,22 @@ class Driving : Activity(), SensorEventListener {
                 runOnUiThread {
                     drivingTimer!!.text = String.format(
                         "%.2f",
-                        ((GAME_DURATION - ((startTime - gameStartTime) / 1000000).toFloat()) / 1000f)
+                        max(0f, ((GAME_DURATION - ((startTime - gameStartTime) / 1000000).toFloat()) / 1000f))
                     )
                     drivingScore!!.text = score.toString()
                 }
 
                 if(abs(orientationAngles[2]) > 0.1) {
                     gX += orientationAngles[2] * 20
-                    taxi.rotationY += orientationAngles[2] * 20
+                    runOnUiThread {
+                        taxi.rotationY += orientationAngles[2] * 20
+                    }
                 }
                 if(abs(orientationAngles[1]) > 0.1) {
                     gY -= orientationAngles[1] * 20
-                    taxi.rotationX += orientationAngles[1] * 20
+                    runOnUiThread {
+                        taxi.rotationX += orientationAngles[1] * 20
+                    }
                 }
 
                 if(gX < 0) {
@@ -197,9 +202,11 @@ class Driving : Activity(), SensorEventListener {
                     gY = (gameHeight - taxiHeight).toFloat()
                 }
 
-                taxi.x = gX
-                taxi.y = gY
-                taxi.z = gY
+                runOnUiThread {
+                    taxi.x = gX
+                    taxi.y = gY
+                    taxi.z = gY
+                }
 
                 if(sqrt((taxi.x - flower.x)*(taxi.x - flower.x) + (taxi.y - flower.y)*(taxi.y - flower.y)) < taxiHeight/2){
                     val moveTime = (System.nanoTime() - lastFlowerTime).toDouble() / 1000000

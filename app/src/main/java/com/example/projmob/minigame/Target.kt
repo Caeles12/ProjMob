@@ -17,6 +17,7 @@ import com.example.projmob.R
 import com.example.projmob.TYPE_GAME_FINISH
 import com.example.projmob.bluetoothService
 import java.util.Random
+import kotlin.math.max
 import kotlin.math.pow
 import kotlin.math.sin
 import kotlin.math.sqrt
@@ -143,7 +144,7 @@ class Target : Activity() {
                 runOnUiThread {
                     targetTimer!!.text = String.format(
                         "%.2f",
-                        ((GAME_DURATION - ((startTime - gameStartTime) / 1000000).toFloat()) / 1000f)
+                        max(0f, ((GAME_DURATION - ((startTime - gameStartTime) / 1000000).toFloat()) / 1000f))
                     )
                     targetScore!!.text = score.toString()
                 }
@@ -173,13 +174,15 @@ class Target : Activity() {
                     }
                 }
 
-                ghost.alpha = maxOf(0f, ghost.alpha - 0.02f)
-                if(ghost.alpha <= 0f) {
-                    ghost.callOnClick()
-                }
+                runOnUiThread {
+                    ghost.alpha = maxOf(0f, ghost.alpha - 0.02f)
+                    if (ghost.alpha <= 0f) {
+                        ghost.callOnClick()
+                    }
 
-                ghost.rotation = sin(startTime.toDouble() / (1000000.0 * 100)).toFloat() * 45
-                ghost.y = gY + sin(startTime.toDouble() / (1000000.0 * 1000)).toFloat() * 100
+                    ghost.rotation = sin(startTime.toDouble() / (1000000.0 * 100)).toFloat() * 45
+                    ghost.y = gY + sin(startTime.toDouble() / (1000000.0 * 1000)).toFloat() * 100
+                }
 
                 timeMillis = (System.nanoTime() - startTime)
                 waitTime = targetTime - (timeMillis / 1000000)

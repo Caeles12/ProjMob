@@ -21,6 +21,7 @@ import com.example.projmob.R
 import com.example.projmob.TAG
 import com.example.projmob.TYPE_GAME_FINISH
 import com.example.projmob.bluetoothService
+import kotlin.math.max
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -189,7 +190,10 @@ class Fishing : Activity(), SensorEventListener {
 
                 }
                 runOnUiThread {
-                    fishingTimer!!.text = ((GAME_DURATION - ((startTime - gameStartTime) / 1000000)) / 1000).toInt().toString()
+                    fishingTimer!!.text = String.format(
+                        "%.2f",
+                        max(0f, ((GAME_DURATION - ((startTime - gameStartTime) / 1000000).toFloat()) / 1000f))
+                    )
                 }
                 if(action) {
                     if(fishSpawned) {
