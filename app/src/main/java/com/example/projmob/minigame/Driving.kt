@@ -1,7 +1,9 @@
 package com.example.projmob.minigame
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.hardware.Sensor
 import android.hardware.SensorEvent
@@ -54,8 +56,14 @@ class Driving : Activity(), SensorEventListener {
         sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
 
         val gameThread: GameThread = GameThread(this)
-        gameThread.setRunning(true)
-        gameThread.start()
+        AlertDialog.Builder(this)
+            .setTitle(resources.getString(R.string.driving))
+            .setMessage(resources.getString(R.string.driving_instructions))
+            .setPositiveButton(resources.getString(R.string.letsgo), DialogInterface.OnClickListener { _, _ ->
+                gameThread.setRunning(true)
+                gameThread.start()
+            })
+            .show()
 
         var scoreIntent = Intent(this, Score::class.java)
         if(bluetoothService != null){

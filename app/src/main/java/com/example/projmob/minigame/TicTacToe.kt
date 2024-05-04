@@ -49,6 +49,11 @@ class TicTacToe : Activity() {
         }
         initializeButtons()
         enableButtons(playerTurn)
+        AlertDialog.Builder(this)
+            .setTitle(resources.getString(R.string.tictactoe))
+            .setMessage(resources.getString(R.string.tictactoe_instructions))
+            .setPositiveButton(resources.getString(R.string.letsgo), null)
+            .show()
     }
 
     // Initialize the buttons grid

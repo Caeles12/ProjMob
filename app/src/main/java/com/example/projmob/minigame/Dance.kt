@@ -1,7 +1,9 @@
 package com.example.projmob.minigame
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -10,6 +12,7 @@ import android.view.VelocityTracker
 import android.widget.TextView
 import com.example.projmob.R
 import com.example.projmob.TAG
+import com.example.projmob.TYPE_CONNEXION_END
 import com.example.projmob.TYPE_GAME_FINISH
 import com.example.projmob.bluetoothService
 import kotlin.math.pow
@@ -46,8 +49,15 @@ class Dance: Activity() {
         danceMessage!!.text = "\uD83D\uDD7A"
 
         val gameThread: GameThread = GameThread(this)
-        gameThread.setRunning(true)
-        gameThread.start()
+        AlertDialog.Builder(this)
+            .setTitle(resources.getString(R.string.dancing))
+            .setMessage(resources.getString(R.string.dancing_instructions))
+            .setPositiveButton(resources.getString(R.string.letsgo), DialogInterface.OnClickListener { _, _ ->
+                gameThread.setRunning(true)
+                gameThread.start()
+            })
+            .show()
+
 
         var scoreIntent = Intent(this, Score::class.java)
         if(bluetoothService != null){

@@ -1,7 +1,9 @@
 package com.example.projmob.minigame
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
@@ -42,8 +44,14 @@ class Target : Activity() {
         targetTimer = findViewById(R.id.targetgametimer)
 
         val gameThread: GameThread = GameThread(this)
-        gameThread.setRunning(true)
-        gameThread.start()
+        AlertDialog.Builder(this)
+            .setTitle(resources.getString(R.string.target))
+            .setMessage(resources.getString(R.string.target_instructions))
+            .setPositiveButton(resources.getString(R.string.letsgo), DialogInterface.OnClickListener { _, _ ->
+                gameThread.setRunning(true)
+                gameThread.start()
+            })
+            .show()
 
         var scoreIntent = Intent(this, Score::class.java)
         if(bluetoothService != null){
@@ -126,12 +134,19 @@ class Target : Activity() {
                 }
                 lastMoveTime = System.nanoTime()
             })
-            ll?.addView(ghost)
+            runOnUiThread {
+                ll?.addView(ghost)
+            }
 
             while(running) {
                 startTime = System.nanoTime()
-                targetTimer!!.text = String.format("%.2f", ((GAME_DURATION - ((startTime - gameStartTime) / 1000000).toFloat()) / 1000f))
-                targetScore!!.text = score.toString()
+                runOnUiThread {
+                    targetTimer!!.text = String.format(
+                        "%.2f",
+                        ((GAME_DURATION - ((startTime - gameStartTime) / 1000000).toFloat()) / 1000f)
+                    )
+                    targetScore!!.text = score.toString()
+                }
 
                 if((GAME_DURATION - ((startTime - gameStartTime) / 1000000)) < 0){
                     running = false;

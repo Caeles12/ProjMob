@@ -1,6 +1,8 @@
 package com.example.projmob.minigame
 
 import android.app.Activity
+import android.app.AlertDialog
+import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -34,6 +36,12 @@ class FeedGame : Activity() {
         catEmojiImageView = findViewById(R.id.catEmojiImageView)
         emojiButton1 = findViewById(R.id.emojiButton1)
         emojiButton2 = findViewById(R.id.emojiButton2)
+
+        AlertDialog.Builder(this)
+            .setTitle(resources.getString(R.string.feed))
+            .setMessage(resources.getString(R.string.feed_instructions))
+            .setPositiveButton(resources.getString(R.string.letsgo), null)
+            .show()
 
         // Générer deux réponses aléatoires pour les boutons d'emoji
         val rightEmoji = getRandomRightEmoji()

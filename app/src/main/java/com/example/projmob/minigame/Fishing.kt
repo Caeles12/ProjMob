@@ -1,7 +1,9 @@
 package com.example.projmob.minigame
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.hardware.Sensor
 import android.hardware.SensorEvent
@@ -63,8 +65,14 @@ class Fishing : Activity(), SensorEventListener {
         mAccelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION)
         mGravity = sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY)
 
-        game.start()
-        game.setRunning(true)
+        AlertDialog.Builder(this)
+            .setTitle(resources.getString(R.string.fishing))
+            .setMessage(resources.getString(R.string.fishing_instructions))
+            .setPositiveButton(resources.getString(R.string.letsgo), DialogInterface.OnClickListener { _, _ ->
+                game.setRunning(true)
+                game.start()
+            })
+            .show()
         var scoreIntent = Intent(this, Score::class.java)
 
         if(bluetoothService != null){
