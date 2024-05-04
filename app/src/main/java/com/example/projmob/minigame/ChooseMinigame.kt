@@ -60,20 +60,20 @@ class ChooseMinigame : Activity() {
         val playGameButton: Button = findViewById(R.id.playGameButton);
 
         val fishingIntent = Intent(this, Fishing::class.java)
-        minigames["fishing"] = GameInfo("Fishing", fishingIntent)
+        minigames["fishing"] = GameInfo(resources.getString(R.string.fishing), fishingIntent)
         //val messagesIntent = Intent(this, MessageActivity::class.java)
         //minigames["messages"] = GameInfo("Messages", messagesIntent)
         val dancingIntent = Intent(this, Dance::class.java)
-        minigames["dancing"] = GameInfo("Dancing", dancingIntent)
+        minigames["dancing"] = GameInfo(resources.getString(R.string.dancing), dancingIntent)
         val targetIntent = Intent(this, Target::class.java)
-        minigames["target"] = GameInfo("Ghost Hunt", targetIntent)
+        minigames["target"] = GameInfo(resources.getString(R.string.target), targetIntent)
         val catIntent = Intent(this, FeedGame::class.java)
-        minigames["cat"] = GameInfo("CatFeeding", catIntent)
+        minigames["cat"] = GameInfo(resources.getString(R.string.feed), catIntent)
         val tttIntent = Intent(this, TicTacToe::class.java)
-        minigames["TTT"] = GameInfo("TicTacToe", tttIntent)
+        minigames["TTT"] = GameInfo(resources.getString(R.string.tictactoe), tttIntent)
 
         val driveIntent = Intent(this, Driving::class.java)
-        minigames["drive"] = GameInfo("Driving", driveIntent)
+        minigames["drive"] = GameInfo(resources.getString(R.string.driving), driveIntent)
 
         if(bluetoothService == null || bluetoothService!!.isServer) {
             if(bluetoothService != null) {
