@@ -171,6 +171,12 @@ class Dance: Activity() {
                             scoreIntent = scoreIntent.putExtra("myScore", myFinalScore!!).putExtra("opponentScore", opponentFinalScore!!);
                             startActivity(scoreIntent)
                             finish()
+                        } else {
+                            runOnUiThread {
+                                AlertDialog.Builder(context)
+                                    .setMessage(resources.getString(R.string.waiting))
+                                    .show()
+                            }
                         }
                     } else {
                         var scoreIntent = Intent(context, Score::class.java)

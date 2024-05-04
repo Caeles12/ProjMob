@@ -71,7 +71,6 @@ class ChooseMinigame : Activity() {
         minigames["cat"] = GameInfo(resources.getString(R.string.feed), catIntent)
         val tttIntent = Intent(this, TicTacToe::class.java)
         minigames["TTT"] = GameInfo(resources.getString(R.string.tictactoe), tttIntent)
-
         val driveIntent = Intent(this, Driving::class.java)
         minigames["drive"] = GameInfo(resources.getString(R.string.driving), driveIntent)
 

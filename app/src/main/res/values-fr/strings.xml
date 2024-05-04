@@ -26,4 +26,5 @@
     <string name="feed">Nourris moi!</string>
     <string name="feed_instructions">Nourris le chat en choisissant le bon aliment!</string>
     <string name="driving">Papillon</string>
+    <string name="waiting">En attente de l\'adversaire...</string>
 </resources>

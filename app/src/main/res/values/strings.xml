@@ -33,4 +33,5 @@
     <string name="feed">Feed the Cat</string>
     <string name="feed_instructions">Feed the cat yummy things by chosing the right food!</string>
     <string name="driving">Butterfly</string>
+    <string name="waiting">Waiting for other player...</string>
 </resources>

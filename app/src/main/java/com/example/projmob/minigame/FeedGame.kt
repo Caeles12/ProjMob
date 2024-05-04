@@ -145,6 +145,12 @@ class FeedGame : Activity() {
                 scoreIntent = scoreIntent.putExtra("myScore", myFinalScore!!).putExtra("opponentScore", opponentFinalScore!!);
                 startActivity(scoreIntent)
                 finish()
+            }else{
+                runOnUiThread {
+                    AlertDialog.Builder(this)
+                        .setMessage(resources.getString(R.string.waiting))
+                        .show()
+                }
             }
         } else {
             var scoreIntent = Intent(this, Score::class.java)
