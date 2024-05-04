@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.DialogInterface
 import android.content.Intent
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
@@ -20,6 +21,8 @@ class FeedGame : Activity() {
     private lateinit var emojiButton1: Button
     private lateinit var emojiButton2: Button
 
+    private lateinit var music: MediaPlayer;
+
     private var score: Int = 0
 
     private var myFinalScore: Int? = null
@@ -31,6 +34,10 @@ class FeedGame : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_feed_game)
+
+        music = MediaPlayer.create(this, R.raw.run_amok);
+        music.isLooping = true
+        music.start()
 
         scoreTextView = findViewById(R.id.scoreTextView)
         catEmojiImageView = findViewById(R.id.catEmojiImageView)
@@ -190,5 +197,9 @@ class FeedGame : Activity() {
     private fun updateScore() {
         scoreTextView.text = "Score: $score"
         updateCatSize()
+    }
+    override fun onDestroy() {
+        super.onDestroy()
+        music.release()
     }
 }

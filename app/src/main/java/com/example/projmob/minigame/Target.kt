@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Color
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.view.View
@@ -35,11 +36,18 @@ class Target : Activity() {
     private val MAX_TIME: Double = 1000.0
     private val MAX_POINTS: Double = 100.0
 
+    private lateinit var music: MediaPlayer;
+
     private var myFinalScore: Int? = null
     private var opponentFinalScore: Int? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_target)
+
+        music = MediaPlayer.create(this, R.raw.sergios_sagic_sustbin);
+        music.isLooping = true
+        music.start()
+
         ll =  findViewById(R.id.targetminigamell);
         targetScore = findViewById(R.id.targetgamescore)
         targetTimer = findViewById(R.id.targetgametimer)
@@ -194,5 +202,9 @@ class Target : Activity() {
                 }
             }
         }
+    }
+    override fun onDestroy() {
+        super.onDestroy()
+        music.release()
     }
 }

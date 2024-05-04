@@ -9,6 +9,7 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.util.Log
 import android.view.ViewGroup
@@ -30,6 +31,8 @@ class Driving : Activity(), SensorEventListener {
     private val accelerometerReading = FloatArray(3)
     private val magnetometerReading = FloatArray(3)
 
+    private lateinit var music: MediaPlayer;
+
     private val rotationMatrix = FloatArray(9)
     private val orientationAngles = FloatArray(3)
 
@@ -50,6 +53,11 @@ class Driving : Activity(), SensorEventListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_driving)
+
+        music = MediaPlayer.create(this, R.raw.enchanted_valley);
+        music.isLooping = true
+        music.start()
+
         ll =  findViewById(R.id.drivinggamell);
         drivingScore = findViewById(R.id.drivinggamescore)
         drivingTimer = findViewById(R.id.drivinggametimer)
@@ -314,5 +322,9 @@ class Driving : Activity(), SensorEventListener {
     override fun onPause() {
         super.onPause()
         sensorManager.unregisterListener(this)
+    }
+    override fun onDestroy() {
+        super.onDestroy()
+        music.release()
     }
 }

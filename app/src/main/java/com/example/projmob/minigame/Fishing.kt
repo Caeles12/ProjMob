@@ -9,6 +9,7 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.media.MediaPlayer
 import android.os.Build
 import android.os.Bundle
 import android.os.VibrationEffect
@@ -36,6 +37,8 @@ class Fishing : Activity(), SensorEventListener {
     private var acceleration = FloatArray(3) { 0f }
     private var rotMatrix = FloatArray(9) { 0f }
 
+    private lateinit var music: MediaPlayer;
+
     private val CHEAT_PENALITY: Int = 50
     private val MAX_FISH_TIME: Double = 4000.0
     private val MAX_FISH_SCORE: Double = 100.0
@@ -59,6 +62,11 @@ class Fishing : Activity(), SensorEventListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.fishinggame)
+
+        music = MediaPlayer.create(this, R.raw.space_jazz);
+        music.isLooping = true
+        music.start()
+
 
         fishingScoreTextView = findViewById(R.id.fishinggamescore)
         fishingMessage = findViewById(R.id.fishinggamemessage)
@@ -393,5 +401,10 @@ class Fishing : Activity(), SensorEventListener {
     override fun onStop() {
         super.onStop()
         game.setRunning(false)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        music.release()
     }
 }

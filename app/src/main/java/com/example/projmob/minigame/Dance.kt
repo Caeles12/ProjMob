@@ -5,6 +5,7 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.util.Log
 import android.view.MotionEvent
@@ -31,6 +32,8 @@ class Dance: Activity() {
     private var danceMessage: TextView? = null
     private var danceTimer: TextView? = null
 
+    private lateinit var music: MediaPlayer;
+
     private var myFinalScore: Int? = null
     private var opponentFinalScore: Int? = null
 
@@ -42,6 +45,10 @@ class Dance: Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dance)
+
+        music = MediaPlayer.create(this, R.raw.arroz_con_pollo);
+        music.isLooping = true
+        music.start()
 
         danceScoreTextView = findViewById(R.id.dancegamescore)
         danceMessage = findViewById(R.id.dancegamemessage)
@@ -230,5 +237,9 @@ class Dance: Activity() {
                 }
             }
         }
+    }
+    override fun onDestroy() {
+        super.onDestroy()
+        music.release()
     }
 }

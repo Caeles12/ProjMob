@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.DialogInterface
 import android.content.Intent
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -20,6 +21,8 @@ class TicTacToe : Activity() {
     private var moves = 0
     private var gameOver = false
     private var playerIsX = true
+
+    private lateinit var music: MediaPlayer;
 
     private val receiveStartHandler = bluetoothService?.MyHandler {
         if (it.what == TYPE_GAME_MESSAGE) {
@@ -39,6 +42,11 @@ class TicTacToe : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.tictactoegame)
+
+        music = MediaPlayer.create(this, R.raw.valse_gymnopedie);
+        music.isLooping = true
+        music.start()
+
         if(bluetoothService!= null) {
             bluetoothService!!.subscribe(receiveStartHandler!!)
         }
@@ -185,6 +193,9 @@ class TicTacToe : Activity() {
             return
         }
     }
-
+    override fun onDestroy() {
+        super.onDestroy()
+        music.release()
+    }
 }
 
