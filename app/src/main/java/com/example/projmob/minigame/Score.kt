@@ -1,6 +1,7 @@
 package com.example.projmob.minigame
 
 import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
@@ -8,6 +9,8 @@ import android.widget.TextView
 import com.example.projmob.R
 import com.example.projmob.TYPE_BASIC_ACTION
 import android.media.MediaPlayer
+import com.example.projmob.TYPE_GAME_START
+import com.example.projmob.TYPE_SHOW_SCORES
 import com.example.projmob.bluetoothService
 
 class Score : Activity() {
@@ -62,6 +65,20 @@ class Score : Activity() {
                     if (iAmOk) {
                         finish()
                     }
+                }
+                if (it.what == TYPE_GAME_START) {
+                    for(k in minigames.keys) {
+                        if (it.content.contains(k)) {
+                            startActivity(minigames[k]!!.intent)
+                            finish()
+                        }
+                    }
+                }
+                if(it.what == TYPE_SHOW_SCORES) {
+                    var scoreIntent = Intent(this, Score::class.java)
+                    scoreIntent = scoreIntent.putExtra("myScore", bluetoothService!!.myPoints)
+                        .putExtra("opponentScore", bluetoothService!!.opponentPoints).putExtra("countGlobal", false);
+                    startActivity(scoreIntent)
                 }
             }
             bluetoothService!!.subscribe(gameFinishedHandler)

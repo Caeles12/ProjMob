@@ -22,4 +22,16 @@
     <string name="multiplayer">Multiplayer</string>
     <string name="solo">Solo</string>
     <string name="a_parentheses_b">%1$s (%2$s)</string>
+    <string name="letsgo">Let\'s go!</string>
+    <string name="dancing_instructions">Swipe in the direction of the arrows on the screen!</string>
+    <string name="fishing_instructions">On long vibrations, move your phone up to catch the fish!</string>
+    <string name="driving_instructions">Move the butterfly toward the flowers by tilting your phone!</string>
+    <string name="target">GhostBuster</string>
+    <string name="target_instructions">Touch the ghost before it disappear!</string>
+    <string name="tictactoe_instructions">Place 3 of your symbols in a line before your opponent!</string>
+    <string name="tictactoe">TicTacToe</string>
+    <string name="feed">Feed the Cat</string>
+    <string name="feed_instructions">Feed the cat yummy things by chosing the right food!</string>
+    <string name="driving">Butterfly</string>
+    <string name="waiting">Waiting for other player...</string>
 </resources>

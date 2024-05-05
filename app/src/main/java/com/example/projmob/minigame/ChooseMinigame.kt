@@ -20,17 +20,19 @@ import com.example.projmob.TYPE_RESET_POINTS
 import com.example.projmob.TYPE_SHOW_SCORES
 import com.example.projmob.bluetoothService
 
+var minigames: MutableMap<String, GameInfo> = mutableMapOf()
 
 class ChooseMinigame : Activity() {
-    var minigames: MutableMap<String, GameInfo> = mutableMapOf()
     var gameSerie: List<String> = listOf()
     var gameNumber: Int = 0
 
     private val receiveStartHandler = bluetoothService?.MyHandler {
         Log.d(TAG, "Received ${it.what} (${it.content})")
         if (it.what == TYPE_GAME_START) {
-            if(it.content in minigames.keys){
-                startActivity(minigames[it.content]!!.intent)
+            for(k in minigames.keys) {
+                if (it.content.contains(k)) {
+                    startActivity(minigames[k]!!.intent)
+                }
             }
         }
         if(it.what == TYPE_CONNEXION_END){
@@ -44,6 +46,11 @@ class ChooseMinigame : Activity() {
         if(it.what == TYPE_RESET_POINTS) {
             bluetoothService!!.myPoints = 0
             bluetoothService!!.opponentPoints = 0
+            for(k in minigames.keys) {
+                if (it.content.contains(k)) {
+                    startActivity(minigames[k]!!.intent)
+                }
+            }
         }
         if(it.what == TYPE_SHOW_SCORES) {
             var scoreIntent = Intent(this, Score::class.java)
@@ -60,20 +67,19 @@ class ChooseMinigame : Activity() {
         val playGameButton: Button = findViewById(R.id.playGameButton);
 
         val fishingIntent = Intent(this, Fishing::class.java)
-        minigames["fishing"] = GameInfo("Fishing", fishingIntent)
+        minigames["fishing"] = GameInfo(resources.getString(R.string.fishing), fishingIntent)
         //val messagesIntent = Intent(this, MessageActivity::class.java)
         //minigames["messages"] = GameInfo("Messages", messagesIntent)
         val dancingIntent = Intent(this, Dance::class.java)
-        minigames["dancing"] = GameInfo("Dancing", dancingIntent)
+        minigames["dancing"] = GameInfo(resources.getString(R.string.dancing), dancingIntent)
         val targetIntent = Intent(this, Target::class.java)
-        minigames["target"] = GameInfo("Ghost Hunt", targetIntent)
+        minigames["target"] = GameInfo(resources.getString(R.string.target), targetIntent)
         val catIntent = Intent(this, FeedGame::class.java)
-        minigames["cat"] = GameInfo("CatFeeding", catIntent)
+        minigames["cat"] = GameInfo(resources.getString(R.string.feed), catIntent)
         val tttIntent = Intent(this, TicTacToe::class.java)
-        minigames["TTT"] = GameInfo("TicTacToe", tttIntent)
-
+        minigames["TTT"] = GameInfo(resources.getString(R.string.tictactoe), tttIntent)
         val driveIntent = Intent(this, Driving::class.java)
-        minigames["drive"] = GameInfo("Driving", driveIntent)
+        minigames["drive"] = GameInfo(resources.getString(R.string.driving), driveIntent)
 
         if(bluetoothService == null || bluetoothService!!.isServer) {
             if(bluetoothService != null) {
@@ -109,17 +115,13 @@ class ChooseMinigame : Activity() {
                 if(bluetoothService != null) {
                     bluetoothService!!.myPoints = 0
                     bluetoothService!!.opponentPoints = 0
-                    bluetoothService?.connectThread?.write(
-                        TYPE_RESET_POINTS,
-                        "".toByteArray()
-                    )
                 }
                 gameSerie = minigames.keys.shuffled().take(3)
                 gameNumber = 0
                 val game = gameSerie[gameNumber]
 
                 bluetoothService?.connectThread?.write(
-                    TYPE_GAME_START,
+                    TYPE_RESET_POINTS,
                     game.toByteArray()
                 )
                 startActivity(minigames[game]?.intent)
@@ -164,7 +166,6 @@ class ChooseMinigame : Activity() {
             gameNumber ++
             if(gameNumber < gameSerie.size) {
                 val game = gameSerie[gameNumber]
-
                 bluetoothService?.connectThread?.write(
                     TYPE_GAME_START,
                     game.toByteArray()

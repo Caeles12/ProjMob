@@ -1,8 +1,11 @@
 package com.example.projmob.minigame
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.util.Log
 import android.view.MotionEvent
@@ -10,8 +13,10 @@ import android.view.VelocityTracker
 import android.widget.TextView
 import com.example.projmob.R
 import com.example.projmob.TAG
+import com.example.projmob.TYPE_CONNEXION_END
 import com.example.projmob.TYPE_GAME_FINISH
 import com.example.projmob.bluetoothService
+import kotlin.math.max
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -27,6 +32,8 @@ class Dance: Activity() {
     private var danceMessage: TextView? = null
     private var danceTimer: TextView? = null
 
+    private lateinit var music: MediaPlayer;
+
     private var myFinalScore: Int? = null
     private var opponentFinalScore: Int? = null
 
@@ -39,6 +46,10 @@ class Dance: Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dance)
 
+        music = MediaPlayer.create(this, R.raw.arroz_con_pollo);
+        music.isLooping = true
+        music.start()
+
         danceScoreTextView = findViewById(R.id.dancegamescore)
         danceMessage = findViewById(R.id.dancegamemessage)
         danceTimer = findViewById(R.id.dancegametimer)
@@ -46,8 +57,16 @@ class Dance: Activity() {
         danceMessage!!.text = "\uD83D\uDD7A"
 
         val gameThread: GameThread = GameThread(this)
-        gameThread.setRunning(true)
-        gameThread.start()
+        AlertDialog.Builder(this)
+            .setTitle(resources.getString(R.string.dancing))
+            .setMessage(resources.getString(R.string.dancing_instructions))
+            .setPositiveButton(resources.getString(R.string.letsgo), null)
+            .setOnDismissListener {
+                gameThread.setRunning(true)
+                gameThread.start()
+            }
+            .show()
+
 
         var scoreIntent = Intent(this, Score::class.java)
         if(bluetoothService != null){
@@ -147,9 +166,16 @@ class Dance: Activity() {
 
             while(running) {
                 startTime = System.nanoTime()
-                danceMessage!!.text = danceIcons[direction]
-                danceTimer!!.text = ((GAME_DURATION - ((startTime - gameStartTime) / 1000000)) / 1000).toInt().toString()
-
+                runOnUiThread {
+                    danceMessage!!.text = danceIcons[direction]
+                    danceTimer!!.text = String.format(
+                        "%.2f",
+                        max(
+                            0f,
+                            ((GAME_DURATION - ((startTime - gameStartTime) / 1000000).toFloat()) / 1000f)
+                        )
+                    )
+                }
 
                 if((GAME_DURATION - ((startTime - gameStartTime) / 1000000)) < 0){
                     running = false;
@@ -161,6 +187,12 @@ class Dance: Activity() {
                             scoreIntent = scoreIntent.putExtra("myScore", myFinalScore!!).putExtra("opponentScore", opponentFinalScore!!);
                             startActivity(scoreIntent)
                             finish()
+                        } else {
+                            runOnUiThread {
+                                AlertDialog.Builder(context)
+                                    .setMessage(resources.getString(R.string.waiting))
+                                    .show()
+                            }
                         }
                     } else {
                         var scoreIntent = Intent(context, Score::class.java)
@@ -179,7 +211,9 @@ class Dance: Activity() {
                         val moveTime = (startTime - lastMoveTime).toDouble() / 1000000
                         val moveScore = score(moveTime, MAX_TIME, MAX_POINTS).toInt()
                         score += moveScore
-                        danceScoreTextView!!.text = score.toString()
+                        runOnUiThread {
+                            danceScoreTextView!!.text = score.toString()
+                        }
                         val lastDir = direction
                         while(lastDir == direction){
                             direction = (danceIcons.indices).random()
@@ -190,7 +224,9 @@ class Dance: Activity() {
                     } else if(dp <= -0.5){
                         score -= CHEAT_PENALITY
                         score = maxOf(0, score)
-                        danceScoreTextView!!.text = score.toString()
+                        runOnUiThread {
+                            danceScoreTextView!!.text = score.toString()
+                        }
                         Log.d(TAG, "Uh oh... $dp")
                         hasMoved = true
                     }
@@ -210,5 +246,9 @@ class Dance: Activity() {
                 }
             }
         }
+    }
+    override fun onDestroy() {
+        super.onDestroy()
+        music.release()
     }
 }

@@ -1,12 +1,16 @@
 package com.example.projmob.minigame
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.media.MediaPlayer
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.ViewGroup
@@ -19,6 +23,7 @@ import com.example.projmob.TAG
 import com.example.projmob.TYPE_GAME_FINISH
 import com.example.projmob.bluetoothService
 import kotlin.math.abs
+import kotlin.math.max
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -26,6 +31,8 @@ class Driving : Activity(), SensorEventListener {
     private lateinit var sensorManager: SensorManager
     private val accelerometerReading = FloatArray(3)
     private val magnetometerReading = FloatArray(3)
+
+    private lateinit var music: MediaPlayer;
 
     private val rotationMatrix = FloatArray(9)
     private val orientationAngles = FloatArray(3)
@@ -47,6 +54,11 @@ class Driving : Activity(), SensorEventListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_driving)
+
+        music = MediaPlayer.create(this, R.raw.enchanted_valley);
+        music.isLooping = true
+        music.start()
+
         ll =  findViewById(R.id.drivinggamell);
         drivingScore = findViewById(R.id.drivinggamescore)
         drivingTimer = findViewById(R.id.drivinggametimer)
@@ -54,8 +66,15 @@ class Driving : Activity(), SensorEventListener {
         sensorManager = getSystemService(SENSOR_SERVICE) as SensorManager
 
         val gameThread: GameThread = GameThread(this)
-        gameThread.setRunning(true)
-        gameThread.start()
+        AlertDialog.Builder(this)
+            .setTitle(resources.getString(R.string.driving))
+            .setMessage(resources.getString(R.string.driving_instructions))
+            .setPositiveButton(resources.getString(R.string.letsgo), null)
+            .setOnDismissListener {
+                gameThread.setRunning(true)
+                gameThread.start()
+            }
+            .show()
 
         var scoreIntent = Intent(this, Score::class.java)
         if(bluetoothService != null){
@@ -163,18 +182,26 @@ class Driving : Activity(), SensorEventListener {
                 runOnUiThread {
                     drivingTimer!!.text = String.format(
                         "%.2f",
-                        ((GAME_DURATION - ((startTime - gameStartTime) / 1000000).toFloat()) / 1000f)
+                        max(0f, ((GAME_DURATION - ((startTime - gameStartTime) / 1000000).toFloat()) / 1000f))
                     )
                     drivingScore!!.text = score.toString()
                 }
 
                 if(abs(orientationAngles[2]) > 0.1) {
                     gX += orientationAngles[2] * 20
-                    taxi.rotationY += orientationAngles[2] * 20
+                    if(Build.VERSION.SDK_INT > 28) {
+                        runOnUiThread {
+                            taxi.rotationY += orientationAngles[2] * 20
+                        }
+                    }
                 }
                 if(abs(orientationAngles[1]) > 0.1) {
                     gY -= orientationAngles[1] * 20
-                    taxi.rotationX += orientationAngles[1] * 20
+                    if(Build.VERSION.SDK_INT > 28) {
+                        runOnUiThread {
+                            taxi.rotationX += orientationAngles[1] * 20
+                        }
+                    }
                 }
 
                 if(gX < 0) {
@@ -193,9 +220,11 @@ class Driving : Activity(), SensorEventListener {
                     gY = (gameHeight - taxiHeight).toFloat()
                 }
 
-                taxi.x = gX
-                taxi.y = gY
-                taxi.z = gY
+                runOnUiThread {
+                    taxi.x = gX
+                    taxi.y = gY
+                    taxi.z = gY
+                }
 
                 if(sqrt((taxi.x - flower.x)*(taxi.x - flower.x) + (taxi.y - flower.y)*(taxi.y - flower.y)) < taxiHeight/2){
                     val moveTime = (System.nanoTime() - lastFlowerTime).toDouble() / 1000000
@@ -218,6 +247,12 @@ class Driving : Activity(), SensorEventListener {
                             scoreIntent = scoreIntent.putExtra("myScore", myFinalScore!!).putExtra("opponentScore", opponentFinalScore!!);
                             startActivity(scoreIntent)
                             finish()
+                        } else {
+                            runOnUiThread {
+                                AlertDialog.Builder(context)
+                                    .setMessage(resources.getString(R.string.waiting))
+                                    .show()
+                            }
                         }
                     } else {
                         var scoreIntent = Intent(context, Score::class.java)
@@ -297,5 +332,9 @@ class Driving : Activity(), SensorEventListener {
     override fun onPause() {
         super.onPause()
         sensorManager.unregisterListener(this)
+    }
+    override fun onDestroy() {
+        super.onDestroy()
+        music.release()
     }
 }

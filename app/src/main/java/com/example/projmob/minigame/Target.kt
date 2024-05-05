@@ -1,20 +1,27 @@
 package com.example.projmob.minigame
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Color
+import android.media.MediaPlayer
+import android.os.Build
 import android.os.Bundle
 import android.util.DisplayMetrics
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.view.doOnLayout
 import com.example.projmob.R
+import com.example.projmob.TAG
 import com.example.projmob.TYPE_GAME_FINISH
 import com.example.projmob.bluetoothService
 import java.util.Random
+import kotlin.math.max
 import kotlin.math.pow
 import kotlin.math.sin
 import kotlin.math.sqrt
@@ -32,18 +39,32 @@ class Target : Activity() {
     private val MAX_TIME: Double = 1000.0
     private val MAX_POINTS: Double = 100.0
 
+    private lateinit var music: MediaPlayer;
+
     private var myFinalScore: Int? = null
     private var opponentFinalScore: Int? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_target)
+
+        music = MediaPlayer.create(this, R.raw.sergios_sagic_sustbin);
+        music.isLooping = true
+        music.start()
+
         ll =  findViewById(R.id.targetminigamell);
         targetScore = findViewById(R.id.targetgamescore)
         targetTimer = findViewById(R.id.targetgametimer)
 
         val gameThread: GameThread = GameThread(this)
-        gameThread.setRunning(true)
-        gameThread.start()
+        AlertDialog.Builder(this)
+            .setTitle(resources.getString(R.string.target))
+            .setMessage(resources.getString(R.string.target_instructions))
+            .setPositiveButton(resources.getString(R.string.letsgo), null)
+            .setOnDismissListener {
+                gameThread.setRunning(true)
+                gameThread.start()
+            }
+            .show()
 
         var scoreIntent = Intent(this, Score::class.java)
         if(bluetoothService != null){
@@ -83,7 +104,7 @@ class Target : Activity() {
         }
 
         override fun run() {
-            var startTime: Long
+            var startTime: Long = 0
             var timeMillis: Long = 0
             var waitTime: Long
             val targetTime = (1000 / targetFPS).toLong()
@@ -115,10 +136,10 @@ class Target : Activity() {
                 ghost.y = gY
             }
             ghost.setOnClickListener(View.OnClickListener {
-                if(ghost.alpha <= 0f){
+                if(((startTime - lastMoveTime).toDouble() / 1000000) > MAX_TIME){
                     score = maxOf(0, score - PENALITY)
                 } else {
-                    val moveTime = (System.nanoTime() - lastMoveTime).toDouble() / 1000000
+                    val moveTime = (startTime - lastMoveTime).toDouble() / 1000000
                     score += score(moveTime, MAX_TIME, MAX_POINTS).toInt()
                 }
                 ll?.doOnLayout {
@@ -130,12 +151,19 @@ class Target : Activity() {
                 }
                 lastMoveTime = System.nanoTime()
             })
-            ll?.addView(ghost)
+            runOnUiThread {
+                ll?.addView(ghost)
+            }
 
             while(running) {
                 startTime = System.nanoTime()
-                targetTimer!!.text = String.format("%.2f", ((GAME_DURATION - ((startTime - gameStartTime) / 1000000).toFloat()) / 1000f))
-                targetScore!!.text = score.toString()
+                runOnUiThread {
+                    targetTimer!!.text = String.format(
+                        "%.2f",
+                        max(0f, ((GAME_DURATION - ((startTime - gameStartTime) / 1000000).toFloat()) / 1000f))
+                    )
+                    targetScore!!.text = score.toString()
+                }
 
                 if((GAME_DURATION - ((startTime - gameStartTime) / 1000000)) < 0){
                     running = false;
@@ -147,6 +175,12 @@ class Target : Activity() {
                             scoreIntent = scoreIntent.putExtra("myScore", myFinalScore!!).putExtra("opponentScore", opponentFinalScore!!);
                             startActivity(scoreIntent)
                             finish()
+                        } else {
+                            runOnUiThread {
+                                AlertDialog.Builder(context)
+                                    .setMessage(resources.getString(R.string.waiting))
+                                    .show()
+                            }
                         }
                     } else {
                         var scoreIntent = Intent(context, Score::class.java)
@@ -156,13 +190,18 @@ class Target : Activity() {
                     }
                 }
 
-                ghost.alpha = maxOf(0f, ghost.alpha - 0.02f)
-                if(ghost.alpha <= 0f) {
-                    ghost.callOnClick()
+                runOnUiThread {
+                    ghost.alpha = maxOf(0f, 1.0f - (((startTime - lastMoveTime).toDouble() / 1000000) / MAX_TIME).toFloat())
+                    if (((startTime - lastMoveTime).toDouble() / 1000000) > MAX_TIME) {
+                        ghost.callOnClick()
+                    }
+                    if(Build.VERSION.SDK_INT > 28) {
+                        ghost.rotation =
+                            sin(startTime.toDouble() / (1000000.0 * 100)).toFloat() * 45
+                    }
+                    Log.d(TAG, ghost.rotation.toString())
+                    ghost.y = gY + sin(startTime.toDouble() / (1000000.0 * 1000)).toFloat() * 100
                 }
-
-                ghost.rotation = sin(startTime.toDouble() / (1000000.0 * 100)).toFloat() * 45
-                ghost.y = gY + sin(startTime.toDouble() / (1000000.0 * 1000)).toFloat() * 100
 
                 timeMillis = (System.nanoTime() - startTime)
                 waitTime = targetTime - (timeMillis / 1000000)
@@ -174,5 +213,9 @@ class Target : Activity() {
                 }
             }
         }
+    }
+    override fun onDestroy() {
+        super.onDestroy()
+        music.release()
     }
 }

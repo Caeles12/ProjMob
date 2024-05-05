@@ -1,7 +1,10 @@
 package com.example.projmob.minigame
 
 import android.app.Activity
+import android.app.AlertDialog
+import android.content.DialogInterface
 import android.content.Intent
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
@@ -18,6 +21,8 @@ class FeedGame : Activity() {
     private lateinit var emojiButton1: Button
     private lateinit var emojiButton2: Button
 
+    private lateinit var music: MediaPlayer;
+
     private var score: Int = 0
 
     private var myFinalScore: Int? = null
@@ -30,10 +35,20 @@ class FeedGame : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_feed_game)
 
+        music = MediaPlayer.create(this, R.raw.run_amok);
+        music.isLooping = true
+        music.start()
+
         scoreTextView = findViewById(R.id.scoreTextView)
         catEmojiImageView = findViewById(R.id.catEmojiImageView)
         emojiButton1 = findViewById(R.id.emojiButton1)
         emojiButton2 = findViewById(R.id.emojiButton2)
+
+        AlertDialog.Builder(this)
+            .setTitle(resources.getString(R.string.feed))
+            .setMessage(resources.getString(R.string.feed_instructions))
+            .setPositiveButton(resources.getString(R.string.letsgo), null)
+            .show()
 
         // Générer deux réponses aléatoires pour les boutons d'emoji
         val rightEmoji = getRandomRightEmoji()
@@ -141,6 +156,12 @@ class FeedGame : Activity() {
                 scoreIntent = scoreIntent.putExtra("myScore", myFinalScore!!).putExtra("opponentScore", opponentFinalScore!!);
                 startActivity(scoreIntent)
                 finish()
+            }else{
+                runOnUiThread {
+                    AlertDialog.Builder(this)
+                        .setMessage(resources.getString(R.string.waiting))
+                        .show()
+                }
             }
         } else {
             var scoreIntent = Intent(this, Score::class.java)
@@ -180,5 +201,9 @@ class FeedGame : Activity() {
     private fun updateScore() {
         scoreTextView.text = "Score: $score"
         updateCatSize()
+    }
+    override fun onDestroy() {
+        super.onDestroy()
+        music.release()
     }
 }

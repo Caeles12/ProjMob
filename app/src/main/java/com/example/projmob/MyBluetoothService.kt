@@ -96,7 +96,7 @@ class MyBluetoothService(private val mmSocket: BluetoothSocket, val isServer: Bo
                 handler.sendMessage(writeErrorMsg)
                 return
             }
-
+            Log.d(TAG, "Sending ${bytes.decodeToString()}")
             // Share the sent message with the UI activity.
             val writtenMsg = handler.obtainMessage(
                 MESSAGE_WRITE, -1, -1, mmBuffer)
