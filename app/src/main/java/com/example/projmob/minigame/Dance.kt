@@ -60,10 +60,11 @@ class Dance: Activity() {
         AlertDialog.Builder(this)
             .setTitle(resources.getString(R.string.dancing))
             .setMessage(resources.getString(R.string.dancing_instructions))
-            .setPositiveButton(resources.getString(R.string.letsgo), DialogInterface.OnClickListener { _, _ ->
+            .setPositiveButton(resources.getString(R.string.letsgo), null)
+            .setOnDismissListener {
                 gameThread.setRunning(true)
                 gameThread.start()
-            })
+            }
             .show()
 
 
@@ -165,12 +166,16 @@ class Dance: Activity() {
 
             while(running) {
                 startTime = System.nanoTime()
-                danceMessage!!.text = danceIcons[direction]
-                danceTimer!!.text = String.format(
-                    "%.2f",
-                    max(0f, ((GAME_DURATION - ((startTime - gameStartTime) / 1000000).toFloat()) / 1000f))
-                )
-
+                runOnUiThread {
+                    danceMessage!!.text = danceIcons[direction]
+                    danceTimer!!.text = String.format(
+                        "%.2f",
+                        max(
+                            0f,
+                            ((GAME_DURATION - ((startTime - gameStartTime) / 1000000).toFloat()) / 1000f)
+                        )
+                    )
+                }
 
                 if((GAME_DURATION - ((startTime - gameStartTime) / 1000000)) < 0){
                     running = false;
@@ -206,7 +211,9 @@ class Dance: Activity() {
                         val moveTime = (startTime - lastMoveTime).toDouble() / 1000000
                         val moveScore = score(moveTime, MAX_TIME, MAX_POINTS).toInt()
                         score += moveScore
-                        danceScoreTextView!!.text = score.toString()
+                        runOnUiThread {
+                            danceScoreTextView!!.text = score.toString()
+                        }
                         val lastDir = direction
                         while(lastDir == direction){
                             direction = (danceIcons.indices).random()
@@ -217,7 +224,9 @@ class Dance: Activity() {
                     } else if(dp <= -0.5){
                         score -= CHEAT_PENALITY
                         score = maxOf(0, score)
-                        danceScoreTextView!!.text = score.toString()
+                        runOnUiThread {
+                            danceScoreTextView!!.text = score.toString()
+                        }
                         Log.d(TAG, "Uh oh... $dp")
                         hasMoved = true
                     }

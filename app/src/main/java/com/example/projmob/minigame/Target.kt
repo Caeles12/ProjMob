@@ -7,14 +7,17 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Color
 import android.media.MediaPlayer
+import android.os.Build
 import android.os.Bundle
 import android.util.DisplayMetrics
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.view.doOnLayout
 import com.example.projmob.R
+import com.example.projmob.TAG
 import com.example.projmob.TYPE_GAME_FINISH
 import com.example.projmob.bluetoothService
 import java.util.Random
@@ -56,10 +59,11 @@ class Target : Activity() {
         AlertDialog.Builder(this)
             .setTitle(resources.getString(R.string.target))
             .setMessage(resources.getString(R.string.target_instructions))
-            .setPositiveButton(resources.getString(R.string.letsgo), DialogInterface.OnClickListener { _, _ ->
+            .setPositiveButton(resources.getString(R.string.letsgo), null)
+            .setOnDismissListener {
                 gameThread.setRunning(true)
                 gameThread.start()
-            })
+            }
             .show()
 
         var scoreIntent = Intent(this, Score::class.java)
@@ -100,7 +104,7 @@ class Target : Activity() {
         }
 
         override fun run() {
-            var startTime: Long
+            var startTime: Long = 0
             var timeMillis: Long = 0
             var waitTime: Long
             val targetTime = (1000 / targetFPS).toLong()
@@ -132,10 +136,10 @@ class Target : Activity() {
                 ghost.y = gY
             }
             ghost.setOnClickListener(View.OnClickListener {
-                if(ghost.alpha <= 0f){
+                if(((startTime - lastMoveTime).toDouble() / 1000000) > MAX_TIME){
                     score = maxOf(0, score - PENALITY)
                 } else {
-                    val moveTime = (System.nanoTime() - lastMoveTime).toDouble() / 1000000
+                    val moveTime = (startTime - lastMoveTime).toDouble() / 1000000
                     score += score(moveTime, MAX_TIME, MAX_POINTS).toInt()
                 }
                 ll?.doOnLayout {
@@ -187,12 +191,15 @@ class Target : Activity() {
                 }
 
                 runOnUiThread {
-                    ghost.alpha = maxOf(0f, ghost.alpha - 0.02f)
-                    if (ghost.alpha <= 0f) {
+                    ghost.alpha = maxOf(0f, 1.0f - (((startTime - lastMoveTime).toDouble() / 1000000) / MAX_TIME).toFloat())
+                    if (((startTime - lastMoveTime).toDouble() / 1000000) > MAX_TIME) {
                         ghost.callOnClick()
                     }
-
-                    ghost.rotation = sin(startTime.toDouble() / (1000000.0 * 100)).toFloat() * 45
+                    if(Build.VERSION.SDK_INT > 28) {
+                        ghost.rotation =
+                            sin(startTime.toDouble() / (1000000.0 * 100)).toFloat() * 45
+                    }
+                    Log.d(TAG, ghost.rotation.toString())
                     ghost.y = gY + sin(startTime.toDouble() / (1000000.0 * 1000)).toFloat() * 100
                 }
 

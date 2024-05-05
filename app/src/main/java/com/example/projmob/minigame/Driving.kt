@@ -10,6 +10,7 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.media.MediaPlayer
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.ViewGroup
@@ -68,10 +69,11 @@ class Driving : Activity(), SensorEventListener {
         AlertDialog.Builder(this)
             .setTitle(resources.getString(R.string.driving))
             .setMessage(resources.getString(R.string.driving_instructions))
-            .setPositiveButton(resources.getString(R.string.letsgo), DialogInterface.OnClickListener { _, _ ->
+            .setPositiveButton(resources.getString(R.string.letsgo), null)
+            .setOnDismissListener {
                 gameThread.setRunning(true)
                 gameThread.start()
-            })
+            }
             .show()
 
         var scoreIntent = Intent(this, Score::class.java)
@@ -187,14 +189,18 @@ class Driving : Activity(), SensorEventListener {
 
                 if(abs(orientationAngles[2]) > 0.1) {
                     gX += orientationAngles[2] * 20
-                    runOnUiThread {
-                        taxi.rotationY += orientationAngles[2] * 20
+                    if(Build.VERSION.SDK_INT > 28) {
+                        runOnUiThread {
+                            taxi.rotationY += orientationAngles[2] * 20
+                        }
                     }
                 }
                 if(abs(orientationAngles[1]) > 0.1) {
                     gY -= orientationAngles[1] * 20
-                    runOnUiThread {
-                        taxi.rotationX += orientationAngles[1] * 20
+                    if(Build.VERSION.SDK_INT > 28) {
+                        runOnUiThread {
+                            taxi.rotationX += orientationAngles[1] * 20
+                        }
                     }
                 }
 

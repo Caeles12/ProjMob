@@ -79,10 +79,11 @@ class Fishing : Activity(), SensorEventListener {
         AlertDialog.Builder(this)
             .setTitle(resources.getString(R.string.fishing))
             .setMessage(resources.getString(R.string.fishing_instructions))
-            .setPositiveButton(resources.getString(R.string.letsgo), DialogInterface.OnClickListener { _, _ ->
+            .setPositiveButton(resources.getString(R.string.letsgo), null)
+            .setOnDismissListener {
                 game.setRunning(true)
                 game.start()
-            })
+            }
             .show()
         var scoreIntent = Intent(this, Score::class.java)
 

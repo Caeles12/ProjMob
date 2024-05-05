@@ -103,7 +103,13 @@ class ClientInitActivity : Activity() {
 
                     val deviceName: String? = device.name
                     val deviceAddress: String? = device.address
-                    device.fetchUuidsWithSdp()
+                    if(Build.VERSION.SDK_INT > 28) {
+                        device.fetchUuidsWithSdp()
+                    } else {
+                        if(deviceName != null) {
+                            addDeviceToList(deviceName, deviceAddress!!, device)
+                        }
+                    }
                     // Add the device to your list
                     Log.d(TAG, "$deviceName discovered! ($deviceAddress)")
 
@@ -117,23 +123,30 @@ class ClientInitActivity : Activity() {
                         if(uuids.contains(myUUID)){
                             val deviceName: String? = d.name
                             val deviceAddress: String? = d.address
-                            // Add the device to your list
-                            Log.d(TAG, "${deviceName} is an available device!")
-                            val deviceInfos: DeviceInfo = DeviceInfo(deviceName, deviceAddress, d)
-                            bluetoothDevices.add(deviceInfos)
-                            if(context != null){
-                                var loadingProgressBar = findViewById<ProgressBar>(R.id.loadingProgressBar)
-                                val mListView = findViewById<ListView>(R.id.devices)
-                                loadingProgressBar.visibility = View.GONE
-                                mListView.visibility = View.VISIBLE
-                                val arrayAdapter = ArrayAdapter(context, R.layout.simplelistitem, bluetoothDevices.map { "${it.name} - ${it.address}" })
-                                mListView.adapter = arrayAdapter
-                            }
+                            addDeviceToList(deviceName!!, deviceAddress!!, d)
                         }
                     }
                 }
             }
         }
+    }
+
+    private fun addDeviceToList(deviceName: String, deviceAddress: String, device: BluetoothDevice) {
+        // Add the device to your list
+        Log.d(TAG, "${deviceName} is an available device!")
+        val deviceInfos: DeviceInfo = DeviceInfo(deviceName, deviceAddress, device)
+        bluetoothDevices.add(deviceInfos)
+
+        var loadingProgressBar =
+            findViewById<ProgressBar>(R.id.loadingProgressBar)
+        val mListView = findViewById<ListView>(R.id.devices)
+        loadingProgressBar.visibility = View.GONE
+        mListView.visibility = View.VISIBLE
+        val arrayAdapter = ArrayAdapter(
+            this,
+            R.layout.simplelistitem,
+            bluetoothDevices.map { "${it.name} - ${it.address}" })
+        mListView.adapter = arrayAdapter
     }
 
 

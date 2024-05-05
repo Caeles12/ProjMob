@@ -20,17 +20,19 @@ import com.example.projmob.TYPE_RESET_POINTS
 import com.example.projmob.TYPE_SHOW_SCORES
 import com.example.projmob.bluetoothService
 
+var minigames: MutableMap<String, GameInfo> = mutableMapOf()
 
 class ChooseMinigame : Activity() {
-    var minigames: MutableMap<String, GameInfo> = mutableMapOf()
     var gameSerie: List<String> = listOf()
     var gameNumber: Int = 0
 
     private val receiveStartHandler = bluetoothService?.MyHandler {
         Log.d(TAG, "Received ${it.what} (${it.content})")
         if (it.what == TYPE_GAME_START) {
-            if(it.content in minigames.keys){
-                startActivity(minigames[it.content]!!.intent)
+            for(k in minigames.keys) {
+                if (it.content.contains(k)) {
+                    startActivity(minigames[k]!!.intent)
+                }
             }
         }
         if(it.what == TYPE_CONNEXION_END){
@@ -44,6 +46,11 @@ class ChooseMinigame : Activity() {
         if(it.what == TYPE_RESET_POINTS) {
             bluetoothService!!.myPoints = 0
             bluetoothService!!.opponentPoints = 0
+            for(k in minigames.keys) {
+                if (it.content.contains(k)) {
+                    startActivity(minigames[k]!!.intent)
+                }
+            }
         }
         if(it.what == TYPE_SHOW_SCORES) {
             var scoreIntent = Intent(this, Score::class.java)
@@ -108,17 +115,13 @@ class ChooseMinigame : Activity() {
                 if(bluetoothService != null) {
                     bluetoothService!!.myPoints = 0
                     bluetoothService!!.opponentPoints = 0
-                    bluetoothService?.connectThread?.write(
-                        TYPE_RESET_POINTS,
-                        "".toByteArray()
-                    )
                 }
                 gameSerie = minigames.keys.shuffled().take(3)
                 gameNumber = 0
                 val game = gameSerie[gameNumber]
 
                 bluetoothService?.connectThread?.write(
-                    TYPE_GAME_START,
+                    TYPE_RESET_POINTS,
                     game.toByteArray()
                 )
                 startActivity(minigames[game]?.intent)
@@ -163,7 +166,6 @@ class ChooseMinigame : Activity() {
             gameNumber ++
             if(gameNumber < gameSerie.size) {
                 val game = gameSerie[gameNumber]
-
                 bluetoothService?.connectThread?.write(
                     TYPE_GAME_START,
                     game.toByteArray()
